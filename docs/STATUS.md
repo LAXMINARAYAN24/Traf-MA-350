@@ -9,6 +9,9 @@ Updated: 2026-11-04. "Verified" is backed by a run/test/artifact; outstanding Ph
 - Combined report: `runs/phase2_compact_350_7000_report/report.md` and `report.html`. Matched Ridge / central / flat / hierarchical-off / hierarchical-on test macro-F1: 0.5335 / 0.8357 / 0.2669 / 0.2524 / 0.7078. Queue MAE (m): 29.905 / 14.905 / 57.391 / 57.782 / 27.352. These are descriptive results for one training seed with overlapping windows, not run-level confidence estimates.
 - Dataset capacity supports the sampling targets: train 205,929 vehicle / 27,552 RSU windows; validation 106,786 / 13,776; test 111,067 / 13,776. The flat fixed-budget selection check was tightened to require each selected vehicle to meet the 20-window cap. RSU budget validation now initializes the eligibility threshold before validating the RSU group cap.
 - The four experiments and matched report are complete. The test suite was not rerun for these sampler/configuration changes.
+- A separate latest-run-only report, `runs/phase2_compact_350_7000_report_latest_only/report.md` and `report.html`, uses only the four current model artifacts and excludes the earlier baseline artifact used in the first combined report.
+- The latest-run-only report now includes overall/type-stratified performance graphs, row-normalized confusion matrices on a shared 0–100% scale, validation curves and per-run queue scatter plots. Individual HTML/Markdown reports and their plot assets are in `runs/phase2_compact_350_7000_report_latest_only/individual/`.
+- Future run reports use `python -m trafma run-report --experiment <saved-run-folder> --output <new-report-folder>`; repeat `--experiment` to create a matched comparison plus one individual report per run. Report generation verifies matching held-out row identities and records input hashes.
 
 ## Expanded compact 100-vehicle experiment and RSU self-update ablation
 

@@ -109,6 +109,14 @@ def main(argv=None) -> int:
     pr.add_argument("--output", help="new report directory (must not already exist)")
     pr.add_argument("--statistics", help="paired phase2-stats artifact directory to include")
 
+    er = sub.add_parser("run-report", help="make graph-rich HTML/Markdown reports for saved experiment run(s)")
+    er.add_argument("--experiment", action="append", required=True,
+                    help="saved experiment run directory; repeat to make a matched comparison")
+    er.add_argument("--output", required=True,
+                    help="report output directory; contains comparison and individual run reports")
+    er.add_argument("--overwrite", action="store_true",
+                    help="update an existing report directory, preserving its prior report.md/html copies")
+
     ps = sub.add_parser("phase2-stats", help="run paired run-level bootstrap analysis on saved predictions")
     ps.add_argument("--baseline", required=True, help="saved full-dataset baseline experiment directory")
     ps.add_argument("--experiment", action="append", required=True,
@@ -272,6 +280,15 @@ def main(argv=None) -> int:
                 print(f"Phase 2 report error: {e}", file=sys.stderr)
                 return 2
             print(f"Phase 2 report artifacts: {output}")
+            return 0
+        if a.cmd == "run-report":
+            from .experiment_report import ExperimentReportError, generate_experiment_reports
+            try:
+                output = generate_experiment_reports(a.experiment, a.output, overwrite=a.overwrite)
+            except ExperimentReportError as e:
+                print(f"run report error: {e}", file=sys.stderr)
+                return 2
+            print(f"Run report artifacts: {output}")
             return 0
         if a.cmd == "phase2-stats":
             from .phase2_statistics import StatisticsError, run_paired_statistics
