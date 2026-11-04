@@ -13,7 +13,7 @@ import statistics
 import subprocess
 import sys
 import time
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Optional, Union
 
@@ -372,6 +372,20 @@ def run_gru_training(config_path: Union[str, Path], method: str = "central",
         or evaluation_windows_per_run < 1
     ):
         raise TrainingError("evaluation_windows_per_run must be a positive integer")
+    evaluation_windows_by_type = config.get("evaluation_windows_by_type")
+    if evaluation_windows_by_type is not None and (
+        isinstance(evaluation_windows_by_type, bool)
+        or not isinstance(evaluation_windows_by_type, int)
+        or evaluation_windows_by_type < 1
+    ):
+        raise TrainingError("evaluation_windows_by_type must be a positive integer")
+    training_windows_by_type = config.get("training_windows_by_type")
+    if training_windows_by_type is not None and (
+        isinstance(training_windows_by_type, bool)
+        or not isinstance(training_windows_by_type, int)
+        or training_windows_by_type < 1
+    ):
+        raise TrainingError("training_windows_by_type must be a positive integer")
     dataset_dir = Path(dataset_override or config["dataset"])
     manifest_path = dataset_dir / "dataset_manifest.json"
     if not manifest_path.is_file():
@@ -405,14 +419,42 @@ def run_gru_training(config_path: Union[str, Path], method: str = "central",
             per_run_maximum=evaluation_windows_per_run,
         )
     else:
-        train_samples = _sample_windows(dataset_dir, "train", int(training["max_train_windows"]),
-                                        int(training["seed"]))
-        val_samples = _sample_windows(dataset_dir, "val", int(training["max_validation_windows"]),
-                                      evaluation_seed + 1,
-                                      per_run_maximum=evaluation_windows_per_run)
-        test_samples = _sample_windows(dataset_dir, "test", int(training["max_validation_windows"]),
-                                       evaluation_seed + 2,
-                                       per_run_maximum=evaluation_windows_per_run)
+        if training_windows_by_type is None:
+            train_samples = _sample_windows(dataset_dir, "train", int(training["max_train_windows"]),
+                                            int(training["seed"]))
+        else:
+            train_samples = [
+                sample
+                for index, kind in enumerate(("vehicle", "rsu"))
+                for sample in _sample_windows(
+                    dataset_dir, "train", training_windows_by_type,
+                    int(training["seed"]) + index, client_type=kind,
+                )
+            ]
+        if evaluation_windows_by_type is None:
+            val_samples = _sample_windows(dataset_dir, "val", int(training["max_validation_windows"]),
+                                          evaluation_seed + 1,
+                                          per_run_maximum=evaluation_windows_per_run)
+            test_samples = _sample_windows(dataset_dir, "test", int(training["max_validation_windows"]),
+                                           evaluation_seed + 2,
+                                           per_run_maximum=evaluation_windows_per_run)
+        else:
+            val_samples = [
+                sample
+                for index, kind in enumerate(("vehicle", "rsu"))
+                for sample in _sample_windows(
+                    dataset_dir, "val", evaluation_windows_by_type,
+                    evaluation_seed + 101 + index, client_type=kind,
+                )
+            ]
+            test_samples = [
+                sample
+                for index, kind in enumerate(("vehicle", "rsu"))
+                for sample in _sample_windows(
+                    dataset_dir, "test", evaluation_windows_by_type,
+                    evaluation_seed + 201 + index, client_type=kind,
+                )
+            ]
     if not train_samples or not val_samples or not test_samples:
         raise TrainingError("train, validation and test splits must each contain sampled windows")
     if set(sample.run_id for sample in train_samples) & set(sample.run_id for sample in val_samples + test_samples):
@@ -507,6 +549,10 @@ def run_gru_training(config_path: Union[str, Path], method: str = "central",
         "test_run_ids": sorted(dataset_manifest["splits"]["test"]),
         "selected_window_counts": {"train": len(train_samples), "validation": len(val_samples),
                                    "test": len(test_samples)},
+        "selected_window_counts_by_type": {
+            split_name: dict(Counter(sample.client_type for sample in samples))
+            for split_name, samples in (("train", train_samples), ("validation", val_samples), ("test", test_samples))
+        },
         "python": sys.version.split()[0],
         "platform": platform.platform(),
         "cpu": {"processor": platform.processor(), "logical_cores": os.cpu_count()},

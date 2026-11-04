@@ -44,11 +44,13 @@ def _client_tensor_map(model) -> dict[str, np.ndarray]:
     }
 
 
-def _select_clients(manifest: dict, max_clients: int, minimum_windows: int, seed: int) -> list[str]:
+def _select_clients(manifest: dict, max_clients: int, minimum_windows: int, seed: int,
+                    client_types: Optional[set[str]] = None) -> list[str]:
     eligible = sorted(
         client_id for client_id, client in manifest.get("clients", {}).items()
         if client.get("split") == "train"
         and client.get("trainable")
+        and (client_types is None or client.get("type") in client_types)
         and client.get("windows", 0) >= minimum_windows
     )
     if len(eligible) < 2:
@@ -87,7 +89,8 @@ def _select_hierarchical_vehicles(manifest: dict, max_clients: int, minimum_wind
 
 def _collect_client_windows(dataset_dir: Path, source_ids: list[str], destination_ids: list[str],
                             source_to_destination: dict[str, str], maximum: Optional[int],
-                            seed: int) -> tuple[dict[str, list[FeatureWindow]], dict[str, int]]:
+                            seed: int, maximum_by_client: Optional[dict[str, int]] = None
+                            ) -> tuple[dict[str, list[FeatureWindow]], dict[str, int]]:
     selected = {client_id: [] for client_id in destination_ids}
     seen = {client_id: 0 for client_id in destination_ids}
     rngs = {
@@ -100,12 +103,13 @@ def _collect_client_windows(dataset_dir: Path, source_ids: list[str], destinatio
         dataset_dir, split="train", client_ids=set(source_ids)
     ):
         client_id = source_to_destination[sample.client_id]
+        client_maximum = (maximum_by_client or {}).get(client_id, maximum)
         seen[client_id] += 1
-        if maximum is None or len(selected[client_id]) < maximum:
+        if client_maximum is None or len(selected[client_id]) < client_maximum:
             selected[client_id].append(sample)
         else:
             index = rngs[client_id].randrange(seen[client_id])
-            if index < maximum:
+            if index < client_maximum:
                 selected[client_id][index] = sample
     return selected, seen
 
@@ -200,6 +204,13 @@ def run_fedavg_training(config_path: Union[str, Path],
         or evaluation_windows_per_run < 1
     ):
         raise TrainingError("evaluation_windows_per_run must be a positive integer")
+    evaluation_windows_by_type = config.get("evaluation_windows_by_type")
+    if evaluation_windows_by_type is not None and (
+        isinstance(evaluation_windows_by_type, bool)
+        or not isinstance(evaluation_windows_by_type, int)
+        or evaluation_windows_by_type < 1
+    ):
+        raise TrainingError("evaluation_windows_by_type must be a positive integer")
     federation = config.get("federation")
     if not isinstance(federation, dict):
         raise TrainingError("learning config must define federation settings")
@@ -235,12 +246,26 @@ def run_fedavg_training(config_path: Union[str, Path],
     if (isinstance(max_windows_per_client, bool)
             or not isinstance(max_windows_per_client, int) or max_windows_per_client < 1):
         raise TrainingError("federation.max_windows_per_client must be a positive integer")
-    # Optional fixed training budget: every selected client must hold at least max_windows_per_client windows, so the
-    # hierarchical cohort trains on exactly (number of clients x max_windows_per_client) windows. Off by default.
+    minimum_windows = int(config["baseline"]["minimum_client_windows"])
+    max_rsu_windows_per_group = federation.get("max_rsu_windows_per_group")
+    if max_rsu_windows_per_group is not None and (
+        isinstance(max_rsu_windows_per_group, bool)
+        or not isinstance(max_rsu_windows_per_group, int)
+        or max_rsu_windows_per_group < minimum_windows
+    ):
+        raise TrainingError("federation.max_rsu_windows_per_group must be >= minimum_client_windows")
+    # Optional fixed budget caps every selected learner at max_windows_per_client,
+    # with the RSU group override available for hierarchical self-update runs.
     full_budget = federation.get("require_full_client_budget", False)
     if not isinstance(full_budget, bool):
         raise TrainingError("federation.require_full_client_budget must be boolean")
-    full_budget = full_budget and hierarchy      # only meaningful for the capped hierarchical cohort
+    client_types = federation.get("client_types")
+    if client_types is not None and (
+        not isinstance(client_types, list)
+        or not client_types
+        or any(kind not in ("vehicle", "rsu") for kind in client_types)
+    ):
+        raise TrainingError("federation.client_types must be a non-empty list containing vehicle and/or rsu")
 
     dataset_dir = Path(dataset_override or config["dataset"])
     manifest_path = dataset_dir / "dataset_manifest.json"
@@ -285,14 +310,22 @@ def run_fedavg_training(config_path: Union[str, Path],
                     source_to_destination[source_id] = persistent_id
         sample_cap = max_windows_per_client
     else:
-        client_ids = _select_clients(dataset_manifest, max_clients, minimum_windows,
-                                     cohort_seed)
+        client_ids = _select_clients(
+            dataset_manifest, max_clients,
+            max(minimum_windows, max_windows_per_client) if full_budget else minimum_windows,
+            cohort_seed,
+            set(client_types) if client_types is not None else None,
+        )
+        if full_budget and len(client_ids) < max_clients:
+            raise TrainingError(
+                f"only {len(client_ids)} eligible clients match the fixed budget; {max_clients} are required"
+            )
         source_client_ids = list(client_ids)
         source_to_destination = {client_id: client_id for client_id in client_ids}
         client_meta_by_id = {
             client_id: dataset_manifest["clients"][client_id] for client_id in client_ids
         }
-        sample_cap = None
+        sample_cap = max_windows_per_client if full_budget else None
     _seed_everything(int(training["seed"]), bool(training["deterministic"]))
     model_config = {
         "input_size": FEATURE_DIM,
@@ -307,6 +340,11 @@ def run_fedavg_training(config_path: Union[str, Path],
     client_samples, available_window_counts = _collect_client_windows(
         dataset_dir, source_client_ids, client_ids, source_to_destination,
         sample_cap, cohort_seed,
+        maximum_by_client=(
+            {client_id: max_rsu_windows_per_group for client_id in persistent_rsu_ids}
+            if hierarchy and rsu_self_update and max_rsu_windows_per_group is not None
+            else None
+        ),
     )
     if iid_control:
         source_client_ids = list(client_ids)
@@ -326,22 +364,53 @@ def run_fedavg_training(config_path: Union[str, Path],
         client_ids = sorted(client_samples)
     if len(client_ids) < 2:
         raise TrainingError("fewer than two selected clients produced the minimum valid windows")
-    if full_budget and any(len(samples) != max_windows_per_client for samples in client_samples.values()):
-        short = {c: len(v) for c, v in client_samples.items() if len(v) != max_windows_per_client}
+    def expected_client_budget(client_id: str) -> int:
+        if (client_meta_by_id[client_id]["type"] == "rsu"
+                and max_rsu_windows_per_group is not None):
+            return max_rsu_windows_per_group
+        return max_windows_per_client
+    if full_budget and any(
+        len(samples) != expected_client_budget(client_id)
+        for client_id, samples in client_samples.items()
+    ):
+        short = {
+            client_id: len(samples) for client_id, samples in client_samples.items()
+            if len(samples) != expected_client_budget(client_id)
+        }
         raise TrainingError(f"fixed training budget not met; clients with a different window count: {short}")
     if any(len(samples) < minimum_windows for samples in client_samples.values()):
         raise TrainingError("a selected client partition is below the minimum-window eligibility rule")
     train_samples = [
         sample for samples in client_samples.values() for sample in samples
     ]
-    val_samples = _sample_windows(
-        dataset_dir, "val", int(training["max_validation_windows"]), evaluation_seed + 1,
-        per_run_maximum=evaluation_windows_per_run,
-    )
-    test_samples = _sample_windows(
-        dataset_dir, "test", int(training["max_validation_windows"]), evaluation_seed + 2,
-        per_run_maximum=evaluation_windows_per_run,
-    )
+    if evaluation_windows_by_type is None:
+        val_samples = _sample_windows(
+            dataset_dir, "val", int(training["max_validation_windows"]), evaluation_seed + 1,
+            per_run_maximum=evaluation_windows_per_run,
+        )
+        test_samples = _sample_windows(
+            dataset_dir, "test", int(training["max_validation_windows"]), evaluation_seed + 2,
+            per_run_maximum=evaluation_windows_per_run,
+        )
+    else:
+        # Keep RSU and vehicle held-out cohorts explicit and equally sized.
+        # This is evaluation only; it does not make RSUs training clients.
+        val_samples = [
+            sample
+            for index, client_type in enumerate(("vehicle", "rsu"))
+            for sample in _sample_windows(
+                dataset_dir, "val", evaluation_windows_by_type,
+                evaluation_seed + 101 + index, client_type=client_type,
+            )
+        ]
+        test_samples = [
+            sample
+            for index, client_type in enumerate(("vehicle", "rsu"))
+            for sample in _sample_windows(
+                dataset_dir, "test", evaluation_windows_by_type,
+                evaluation_seed + 201 + index, client_type=client_type,
+            )
+        ]
     if not val_samples or not test_samples:
         raise TrainingError("validation and test splits must each contain sampled windows")
     if set(sample.run_id for sample in train_samples) & {
@@ -589,6 +658,7 @@ def run_fedavg_training(config_path: Union[str, Path],
         },
         "available_training_windows_by_client": available_window_counts,
         "max_windows_per_client": max_windows_per_client if hierarchy else None,
+        "max_rsu_windows_per_group": max_rsu_windows_per_group if hierarchy else None,
         "selected_train_windows": sum(map(len, client_samples.values())),
         "rounds": round_records,
         "model_parameters": sum(parameter.numel() for parameter in global_model.parameters()),
@@ -596,6 +666,8 @@ def run_fedavg_training(config_path: Union[str, Path],
         "predictions_sha256": hashlib.sha256((output_dir / "predictions.csv").read_bytes()).hexdigest(),
         "validation_window_count": len(val_samples),
         "test_window_count": len(test_samples),
+        "validation_windows_by_type": dict(Counter(sample.client_type for sample in val_samples)),
+        "test_windows_by_type": dict(Counter(sample.client_type for sample in test_samples)),
         "seed": training["seed"],
         "cohort_seed": cohort_seed,
         "evaluation_seed": evaluation_seed,

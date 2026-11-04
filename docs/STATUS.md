@@ -2,6 +2,14 @@
 
 Updated: 2026-11-04. "Verified" is backed by a run/test/artifact; outstanding Phase 2 items are explicitly listed.
 
+## Completed 350-vehicle / RSU-stratified compact comparison (2026-11-05)
+
+- Four runs completed: central GRU (`runs/phase2_compact_350_central_7000each/central_gru_phase2_compact_1500_seed20261031_20261104T183425Z/`, 14,000 train windows, 83 epochs, 3.3 min); flat FedAvg (`runs/phase2_compact_350_flat_vehicle_only_7000/flat_fedavg_phase2_compact_1500_seed20261031_20261104T191151Z/`, 350 vehicle clients x 20 windows = 7,000, 100 rounds, 29.2 min); hierarchical RSU self-update off (`runs/phase2_compact_350_vehicle_only_7000/hierarchical_fedavg_phase2_compact_1500_seed20261031_20261104T183804Z/`, 350 vehicle clients x 20 windows = 7,000, 100 rounds, 32.9 min); hierarchical RSU self-update on (`runs/phase2_compact_350_vehicle_rsu_7000each/hierarchical_fedavg_phase2_compact_1500_seed20261031_20261104T194135Z/`, 350 vehicle clients x 20 plus four RSU groups x 1,750 = 14,000, 100 rounds, 40.3 min).
+- Every run evaluated the same 14,000 held-out rows: 7,000 vehicle and 7,000 RSU windows for validation and test. Per-type sample counts are recorded in manifests.
+- Combined report: `runs/phase2_compact_350_7000_report/report.md` and `report.html`. Matched Ridge / central / flat / hierarchical-off / hierarchical-on test macro-F1: 0.5335 / 0.8357 / 0.2669 / 0.2524 / 0.7078. Queue MAE (m): 29.905 / 14.905 / 57.391 / 57.782 / 27.352. These are descriptive results for one training seed with overlapping windows, not run-level confidence estimates.
+- Dataset capacity supports the sampling targets: train 205,929 vehicle / 27,552 RSU windows; validation 106,786 / 13,776; test 111,067 / 13,776. The flat fixed-budget selection check was tightened to require each selected vehicle to meet the 20-window cap. RSU budget validation now initializes the eligibility threshold before validating the RSU group cap.
+- The four experiments and matched report are complete. The test suite was not rerun for these sampler/configuration changes.
+
 ## Expanded compact 100-vehicle experiment and RSU self-update ablation
 
 - `configs/learning_compact_100vehicles.yaml`: 100 vehicle clients plus four RSU sensor learners; 75 windows each, 7,800 windows total, 100 rounds, five local epochs. Central GRU uses the same 7,800-window budget.

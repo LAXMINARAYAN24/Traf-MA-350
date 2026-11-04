@@ -1,11 +1,11 @@
-# Vehicle-only hierarchical FL: RSUs aggregate updates but do not train as clients.
-# Hierarchical implementation reserves four slots for the four RSU groups, so
-# max_clients=354 selects 350 vehicle clients when rsu_self_update=false.
+# Vehicle-only hierarchical FL: 350 vehicle clients, 20 windows each = 7,000 windows.
+# RSUs aggregate updates but do not train as clients. The hierarchical implementation
+# reserves four slots for the four RSU groups, so max_clients=354 selects 350 vehicles.
 dataset: data/phase2_compact_1500
-output_dir: runs/phase2_compact_350_vehicle_only
+output_dir: runs/phase2_compact_350_vehicle_only_7000
 seed: 20261031
 evaluation_seed: 20261031
-evaluation_windows_per_run: 75
+evaluation_windows_by_type: 7000
 baseline:
   method: pooled_signal_aware_ridge
   ridge_alpha: 1.0
@@ -26,14 +26,14 @@ training:
   early_stopping_patience: 15
   regression_loss_weight: 1.0
   classification_loss_weight: 1.0
-  max_train_windows: 26250
-  max_validation_windows: 300
+  max_train_windows: 7000
+  max_validation_windows: 14000
   local_epochs: 5
 federation:
   rounds: 100
   max_clients: 354
   cohort_seed: 20261031
-  max_windows_per_client: 75
+  max_windows_per_client: 20
   require_full_client_budget: true
   deadline_s: 300.0
   live_round_interval_s: 60.0
