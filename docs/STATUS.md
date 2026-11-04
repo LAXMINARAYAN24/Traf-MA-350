@@ -12,6 +12,7 @@ Updated: 2026-11-04. "Verified" is backed by a run/test/artifact; outstanding Ph
 - A separate latest-run-only report, `runs/phase2_compact_350_7000_report_latest_only/report.md` and `report.html`, uses only the four current model artifacts and excludes the earlier baseline artifact used in the first combined report.
 - The latest-run-only report now includes overall/type-stratified performance graphs, row-normalized confusion matrices on a shared 0–100% scale, validation curves and per-run queue scatter plots. Individual HTML/Markdown reports and their plot assets are in `runs/phase2_compact_350_7000_report_latest_only/individual/`.
 - Future run reports use `python -m trafma run-report --experiment <saved-run-folder> --output <new-report-folder>`; repeat `--experiment` to create a matched comparison plus one individual report per run. Report generation verifies matching held-out row identities and records input hashes.
+- The final RSU self-update-on run has a Git-ready package at `artifacts/phase2_compact_350_hfl_rsu_on_7000each/`: its full run artifacts, 14,000 selected feature windows for each train/validation/test split cohort (7,000 per type), config, and individual report/graphs. The full raw dataset is intentionally not copied; selected feature tensors and their provenance hashes are included. Package size is below 50 MiB.
 
 ## Expanded compact 100-vehicle experiment and RSU self-update ablation
 
