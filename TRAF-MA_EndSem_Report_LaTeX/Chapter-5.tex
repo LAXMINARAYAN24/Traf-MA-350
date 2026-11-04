@@ -1,0 +1,16 @@
+\chapter{CONCLUSION AND FUTURE WORK}\label{ch:conclusion}
+
+\section{Conclusion}
+This report documents the implemented TRAF-MA baseline: a left-hand, single-intersection SUMO simulation with four persistent RSU software agents, configurable vehicle agents, bounded observations, a common sequence predictor and hierarchical FedAvg training. The current compact dataset represents four demand scenarios. The evaluated model predicts its own approach queue length and congestion class 30 seconds ahead from ten observations.
+
+This baseline is an implementation stage toward the continuing project problem and objectives stated in Chapters~\ref{ch:intro} and~\ref{ch:survey}. In particular, the current results do not replace the planned work on trust, trust-aware aggregation and consensus, attack robustness, trust recovery or dashboard-based end-to-end evaluation.
+
+On the saved 100-vehicle held-out evaluation, the central GRU achieved MAE 18.51 m, RMSE 28.28 m, macro-F1 0.764 and balanced accuracy 0.746 over 300 overlapping examples. The hierarchical runs with RSU learning on and off achieved lower scores. The enabled run was better numerically than the disabled run, but it also included four additional learning clients and more training examples. These findings are descriptive for one training seed and the current simulation; they do not establish generalisation to real roads or physical sensors.
+
+\section{Limitations}
+The implementation uses synthetic SUMO observations at one intersection, fixed-time signal control, and one held-out seed per scenario. The test windows overlap and the moderate class has fewer examples. The current simulation lifecycle does not hand off a vehicle's parent RSU after it crosses the junction. RSUs are software agents and no camera or radar hardware is represented. Trust scoring, attacks, quarantine, physical signal control and a live operational dashboard are outside the completed work reported here.
+
+\section{Future Work}
+The next phase should first improve evaluation reliability: train multiple seeds, expand held-out runs, report per-class precision and recall, and use run-level uncertainty intervals. Central and hierarchical comparisons should use matched data budgets, with separate ablations for vehicle updates, RSU updates, local epochs and client participation. Alternative sequence architectures such as a temporal convolutional network can then be compared under the same features, splits and compute budget.
+
+Simulation extensions should evaluate route-aware transfer between RSUs at the junction, clearer inbound/outbound sensing rules, and larger networks with varied signal timing. SUMO detectors such as E2 can be represented as an explicit simulated sensor interface if detector-level observations are added; this would still not imply physical hardware. Finally, trust and security mechanisms should be implemented as a separate milestone with controlled attacks, benign non-IID clients, transparent evidence, quarantine/recovery tests and matched clean baselines. Real-world claims require external data and validation beyond the current simulator.

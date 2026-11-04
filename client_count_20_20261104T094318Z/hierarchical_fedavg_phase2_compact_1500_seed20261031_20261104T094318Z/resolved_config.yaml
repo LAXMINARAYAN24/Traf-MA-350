@@ -1,0 +1,41 @@
+dataset: data\phase2_compact_1500
+output_dir: runs/phase2_compact
+seed: 20261031
+evaluation_seed: 20261031
+evaluation_windows_per_run: 75
+baseline:
+  method: pooled_signal_aware_ridge
+  ridge_alpha: 1.0
+  minimum_client_windows: 16
+training:
+  seed: 20261031
+  device: auto
+  num_threads: 0
+  deterministic: true
+  hidden_size: 32
+  layers: 1
+  dropout: 0.0
+  shared_size: 16
+  learning_rate: 0.001
+  batch_size: 64
+  epochs: 150
+  min_epochs: 50
+  early_stopping_patience: 15
+  regression_loss_weight: 1.0
+  classification_loss_weight: 1.0
+  max_train_windows: 1500
+  max_validation_windows: 300
+  local_epochs: 5
+federation:
+  rounds: 100
+  max_clients: 20
+  cohort_seed: 20261031
+  max_windows_per_client: 75
+  require_full_client_budget: true
+  deadline_s: 300.0
+  live_round_interval_s: 60.0
+  transient_vehicle_participation_rate: 0.75
+  aggregation: sample_weighted_model_weights
+  rsu_self_update: true
+iid:
+  seed: 20261031

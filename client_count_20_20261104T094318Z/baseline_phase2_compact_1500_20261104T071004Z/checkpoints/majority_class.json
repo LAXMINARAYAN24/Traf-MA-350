@@ -1,0 +1,10 @@
+{
+  "class": 2,
+  "eligible_training_clients": 1796,
+  "method": "train_only_majority_class",
+  "training_label_histogram": [
+    92505,
+    33285,
+    106794
+  ]
+}

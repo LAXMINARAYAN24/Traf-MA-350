@@ -1,0 +1,38 @@
+\chapter{INTRODUCTION}\label{ch:intro}
+
+\section{Background and Motivation}
+Urban intersections bring traffic streams, signal changes, and vehicle interactions together in a small area. Congestion at an intersection is dynamic: queues build during red phases, discharge during green phases, and differ by approach. A useful prediction system therefore needs recent traffic observations and a clear definition of what each observer can see.
+
+Federated learning (FL) is a way to train a shared model while keeping each participant's training examples at that participant. Clients send model updates to an aggregator rather than uploading raw histories. This addresses a data-sharing concern, but it is not a formal privacy guarantee: model updates can still reveal information, and an aggregator cannot infer whether an update is reliable from its weights alone. Federated averaging (FedAvg) provides a simple and inspectable starting point for collaborative model training \cite{mcmahan2017}.
+
+Traffic data also vary by place and observer. A roadside unit (RSU) measures an approach zone; a vehicle observes its own state and nearby vehicles on the road it is travelling. Even honest clients may therefore have different feature availability and label distributions. Such differences are a non-independent and non-identically distributed (non-IID) learning condition. Traffic FL research discusses this heterogeneity and the practical constraints caused by mobile clients and edge devices \cite{chellapandi2023,zhang2024}. It must be measured in the experiment rather than treated as an assumed property of every client.
+
+\section{Project Problem and Scope}
+The overall project problem is: \emph{To design and develop secure heterogeneous FL traffic agents that collaboratively learn and share reliable traffic information without exchanging raw data.} This includes the intended prediction task and the future trust-aware treatment of unreliable observations and model updates. Honest agents may observe different regions and time periods, so the design must account for legitimate non-IID variation before interpreting disagreement as misbehaviour.
+
+The current implementation is a working stage toward that project problem. It uses SUMO and TraCI for one signalised four-approach intersection, four persistent software RSUs (rsu\_N/E/S/W) and a configurable vehicle population. Traffic drives on the left by default in the current workspace; the signal uses a fixed-time program. The present prediction target is each client's own approach queue length and derived free, moderate or heavy class 30 seconds after a ten-observation history. The current clean-learning experiments do not yet implement the planned trust engine, attack handling, quarantine and recovery, or dashboard. These are continuing project objectives, not removed from project scope.
+
+Federated learning is intended to support collaboration among local traffic agents. In the current offline experiment, saved per-agent trajectory examples are used for local, central and hierarchical training comparisons. Raw histories are not included in update payloads, but data locality alone does not establish a formal privacy guarantee. The project will continue to evaluate the trust, security, consensus and monitoring components against the same overall problem statement.
+
+\section{Objectives}
+At a high level, the project aims to:
+\begin{enumerate}
+  \item Survey recent literature on federated learning for ITS, trust management in vehicular networks, and robust or trust-aware federated learning, and identify the specific gaps that remain open.
+  \item Design and implement a multi-agent traffic environment with heterogeneous vehicle and traffic-signal agents.
+  \item Implement a federated-learning baseline for congestion classification and queue-length regression.
+  \item Design and implement a context-aware, multi-factor trust engine that produces an instantaneous reliability score and a smoothed historical trust score for every agent.
+  \item Use this trust score to weight both federated aggregation and real-time traffic-state consensus, and to distinguish legitimate disagreement from misbehaviour.
+  \item Evaluate robustness to false-observation and model-poisoning attacks through an explicit quarantine-and-recovery lifecycle.
+  \item Integrate the system behind a real-time monitoring dashboard and carry out a broad evaluation covering prediction accuracy, security and communication efficiency.
+\end{enumerate}
+These are continuing project objectives. The implementation and evaluation work reported here represents progress to date; it does not imply that the trust, security, recovery and dashboard objectives are complete.
+
+\section{Work Reported and Main Contributions}
+The implementation contribution to date is an inspectable simulation and learning pipeline rather than a claim of a new forecasting architecture. SUMO provides the simulated road and vehicle states; the observation layer restricts each agent to its configured region. Vehicle reports follow a vehicle-to-parent-RSU-to-coordinator route. Dataset generation keeps splits at the whole-run level, and an audit checks feature scope, label separation, and split integrity. A common 22-value feature vector includes availability masks so that a missing value is distinguishable from an observed zero. These are completed implementation steps toward the larger project objectives above.
+
+The current expanded compact experiment uses four traffic scenarios and 16 saved runs: two training seeds, one validation seed, and one test seed per scenario. Its hierarchical condition uses 100 vehicle trajectory clients and four persistent RSU learners. Each selected client contributes 75 windows; the RSU self-update-off condition retains the RSUs as edge aggregators but excludes their own learner updates. The reported metrics include queue MAE and RMSE, congestion macro-F1, balanced accuracy, class support, and confusion matrices.
+
+The current measured result is mixed. On the same 300 held-out windows, the central GRU performs substantially better than the two hierarchical settings. The RSU self-update-on configuration performs better than the off condition in this single run, but it uses 300 more training windows. Thus, the observed difference does not isolate the effect of RSU updates from the added RSU data mass. The report presents this as interim evidence for the completed prediction and learning work, not as a final evaluation of the full TRAF-MA objectives.
+
+\section{Organisation of the Report}
+Chapter~\ref{ch:survey} discusses nine relevant papers in groups and derives the project problem and objectives. Chapter~\ref{ch:method} describes the implemented simulation, observation contracts, dataset, model, and learning pipelines. Chapter~\ref{ch:results} evaluates the current compact experiment and its limitations. Chapter~\ref{ch:conclusion} summarizes the findings and identifies future work. References and a concise project timeline follow the five chapters.

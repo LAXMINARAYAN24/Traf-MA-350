@@ -1,0 +1,84 @@
+dataset: data/phase2_compact_1500
+output_dir: runs/phase2_compact
+seed: 20261031
+evaluation_seed: 20261031
+evaluation_windows_per_run: 75
+baseline:
+  method: pooled_signal_aware_ridge
+  ridge_alpha: 1.0
+  minimum_client_windows: 16
+training:
+  seed: 20261031
+  device: auto
+  num_threads: 0
+  deterministic: true
+  hidden_size: 32
+  layers: 1
+  dropout: 0.0
+  shared_size: 16
+  learning_rate: 0.001
+  batch_size: 64
+  epochs: 150
+  min_epochs: 50
+  early_stopping_patience: 15
+  regression_loss_weight: 1.0
+  classification_loss_weight: 1.0
+  max_train_windows: 1500
+  max_validation_windows: 300
+  local_epochs: 5
+federation:
+  rounds: 100
+  max_clients: 20
+  cohort_seed: 20261031
+  max_windows_per_client: 75
+  require_full_client_budget: true
+  deadline_s: 300.0
+  live_round_interval_s: 60.0
+  transient_vehicle_participation_rate: 0.75
+  aggregation: sample_weighted_model_weights
+  rsu_self_update: true
+iid:
+  seed: 20261031
+dataset_manifest_sha256: 2e54f245f7f96d31f50b6d1e0c56b28df830a30fe448fd2d2f7d1d18002d0e98
+dataset_definitions:
+  capacity_veh_in_zone: 20.0
+  congestion_rule: queue_zone/zone_len < 0.1 -> 0 free; < 0.35 -> 1 moderate; else
+    2 heavy
+  history_len: 10
+  horizon_s: 30.0
+  label_target: evaluator zone queue/class of the client's own approach at end_t +
+    horizon
+  min_windows_trainable: 16
+  missing_value_policy: None = unavailable (mask); never zero-filled; empty RSU zone
+    has no mean speed/wait
+  queue_definition: contiguous halted chain (speed<=0.1 m/s) starting within 15.0
+    m of the stop line, bumper gaps <= 10.0 m, measured to rear bumper, capped at
+    the target zone
+  report_step_s: 1.0
+  target_zone_m: 150.0
+  window_rule_rsu: last history_len consecutive report steps (all present)
+  window_rule_vehicle: last history_len consecutive report steps, ALL with scope=incoming_local
+dataset_splits:
+  test:
+  - asymmetric_s4
+  - free_s4
+  - heavy_s4
+  - moderate_s4
+  train:
+  - asymmetric_s1
+  - asymmetric_s2
+  - free_s1
+  - free_s2
+  - heavy_s1
+  - heavy_s2
+  - moderate_s1
+  - moderate_s2
+  val:
+  - asymmetric_s3
+  - free_s3
+  - heavy_s3
+  - moderate_s3
+feature_schema_version: trafma.features/1
+feature_schema_hash: 46196acbcc933a9b60f0a3151cf3a5822350c6988b7894a50f5722ac80f4abe2
+aggregation_policy: overlapping windows are samples; simulation-run summaries are
+  reported separately

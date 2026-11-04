@@ -1,0 +1,43 @@
+\chapter{METHODOLOGY}\label{ch:method}
+
+\section{System and Simulation}
+TRAF-MA is implemented as a Python application coupled to SUMO through TraCI. The evaluated scenario is one signalised intersection with north, east, south and west approaches. The simulation uses left-hand traffic. A fixed-time signal controls the junction; the predictor does not control the signal. The implementation has four persistent software roadside units (RSUs), identified as \texttt{rsu\_N}, \texttt{rsu\_E}, \texttt{rsu\_S} and \texttt{rsu\_W}, and a configurable population of vehicle agents. These are simulated software objects, not physical cameras, radars or separate computers.
+
+\begin{figure}[ht]
+\centering
+\fbox{\parbox{0.88\linewidth}{\centering SUMO/TraCI traffic state\\
+$\downarrow$ bounded observations\\
+Vehicle agents $\longrightarrow$ parent RSU agents\\
+$\hspace{2em}\downarrow$ local model updates\\
+Global coordinator (FedAvg) $\longrightarrow$ model distribution}}
+\caption{Implemented simulation and hierarchical learning path.}
+\label{fig:implemented-flow}
+\end{figure}
+
+Only the SUMO adapter reads simulator state. Agent interfaces limit which part of the state each agent receives. A vehicle observes itself and nearby vehicles on its current inbound approach within 100 m. Its parent RSU is assigned at departure and remains the same until arrival; the current code does not transfer the vehicle to another RSU after it crosses the junction. An RSU observes its own inbound approach within 150 m and maintains an outgoing-road vehicle count within 100 m. These are simulated observation rules, not hardware sensor specifications.
+
+The default configuration does not broadcast a signal countdown to vehicles (\texttt{signal\_broadcast=false}). Signal phase information is available to an RSU and is exposed to a vehicle only within the configured 100 m range. As a result, vehicle features do not include a general countdown signal. The signal itself is fixed-time; it is not an independently trained signal agent.
+
+\section{Dataset and Experimental Design}
+The compact dataset used here is \texttt{data/phase2\_compact\_1500}. It was generated for the left-hand setup and contains four demand scenarios: free, moderate, heavy and asymmetric. Each scenario has 900 seconds of simulation per run. Sixteen runs are allocated as two training seeds, one validation seed and one test seed per scenario. Splits are by complete run, so adjacent windows from one run cannot cross between training, validation and test partitions. The dataset manifest and per-agent logs are the evidence for these counts; aggregate manifests do not contain the feature tensors themselves.
+
+For the 100-vehicle experiment, 25 vehicles are configured per approach. In the hierarchical run with RSU learning enabled, the learning population is 100 vehicle clients plus four RSU clients (104 total). In the RSU-learning-off comparison, the population is 100 vehicle clients; the RSUs remain infrastructure aggregators but do not contribute their own model updates. The saved run artifacts record 7,800 training windows for the enabled condition (75 per client) and 7,500 for the disabled condition. Both use 100 communication rounds and five local epochs. The difference in the number of learning clients and examples is a confound when comparing these two conditions.
+
+\section{Observation, Features and Targets}
+The feature contract is \texttt{trafma.features/1}, with 22 input values and explicit missing-value masks. It includes recent local traffic summaries, signal-state encoding where available, and an agent-type indicator. Each example uses a sequence of ten one-second observations. The model predicts the agent's own approach queue length and congestion class 30 seconds into the future. Future labels and evaluator-only truth are excluded from the model inputs.
+
+Queue length is measured in metres. A stopped vehicle is one travelling at no more than 0.1 m/s, with the chain beginning within 15 m of the stop line; the chain extends while bumper-to-bumper gap is at most 10 m. The measured queue reaches to the rear of the last vehicle and is capped at 150 m. Congestion classes are derived from queue length divided by approach observation length: free below 0.10, moderate below 0.35, and heavy otherwise. The target definitions are deterministic simulation labels and should not be interpreted as camera-derived ground truth.
+
+Training examples are generated from per-agent logs. Windows overlap at a one-second stride; this increases the count of examples but makes adjacent rows statistically dependent. This dependence is considered when interpreting evaluation results. Raw histories remain in local agent storage during simulated federation, while aggregate model updates are sent upstream. This is an architectural data-locality property and is not a formal privacy guarantee.
+
+\section{Models and Learning Procedures}
+The shared predictor is a two-head GRU with 5,972 trainable parameters. A recurrent encoder with hidden width 32 processes the ten-step sequence; a shared representation of width 16 feeds a queue-regression head and a three-class congestion head. The common tensor names and shapes allow the same model to be used in central training and federated aggregation. Both heads are trained jointly.
+
+The central model is trained on the union of eligible training clients and uses validation data for checkpoint selection and early stopping. The recorded central run trained for 50 epochs; its best checkpoint was epoch 35. The run reached its configured minimum of 50 epochs, so the saved record does not show an earlier stopping event. The best checkpoint, not the final epoch weights, is used for evaluation.
+
+Hierarchical federated learning has two levels: vehicle updates are aggregated by their parent RSU, and RSU-level updates are passed to the global coordinator for FedAvg. In the enabled run, both vehicle and RSU learning clients contribute. In the disabled run, only vehicle clients contribute learning updates; the RSU layer still routes and aggregates its children. The comparisons are descriptive single-seed experiments, not a sweep over federation algorithms or a statistical estimate across repeated training seeds.
+
+\section{Reproducibility and Implementation Boundaries}
+The project records resolved configuration, seed, software versions, client identifiers and run artifacts. The report's results correspond to the saved 100-client run folders under \texttt{runs/phase2\_compact\_100clients}. Re-running requires the matching configuration and dataset manifests; changing demand, seed, feature contract, or client population creates a different experiment.
+
+The implementation evaluated here does not include an attack schedule, trust scoring/quarantine, a trust-aware consensus algorithm, or a live dashboard. Those are not counted as completed outcomes in this report. The experiment also uses one intersection and a synthetic demand generator. The current parent-RSU lifecycle is static for each vehicle, and no route-aware handoff is evaluated. These limits scope the conclusions and motivate the future work in Chapter~\ref{ch:conclusion}.

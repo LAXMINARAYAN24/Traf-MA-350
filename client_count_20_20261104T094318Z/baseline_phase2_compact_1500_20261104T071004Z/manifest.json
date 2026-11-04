@@ -1,0 +1,78 @@
+{
+  "code_commit": null,
+  "code_worktree_dirty": null,
+  "config_sha256": "fae4c546fb20ae3d74a06bdc95a4b815e5287a368e0b930f7b236ec9a5f95e0c",
+  "cpu": {
+    "logical_cores": 1,
+    "machine": "x86_64",
+    "processor": "x86_64"
+  },
+  "dataset_id": "phase2_compact_1500",
+  "dataset_manifest_sha256": "2e54f245f7f96d31f50b6d1e0c56b28df830a30fe448fd2d2f7d1d18002d0e98",
+  "dataset_simulator_versions": {
+    "platform": "Linux-6.18.44-fc-v233-x86_64-with-glibc2.39",
+    "python": "3.12.16",
+    "sumo": "SUMO 1.28.0",
+    "sumolib": "1.28.0",
+    "traci": "1.28.0",
+    "trafma": "0.1.0"
+  },
+  "dataset_simulator_versions_consistent": true,
+  "experiment_ended_utc": "2026-11-04T07:10:13.434915+00:00",
+  "experiment_id": "baseline_phase2_compact_1500_20261104T071004Z",
+  "experiment_started_utc": "2026-11-04T07:09:59.108620+00:00",
+  "feature_schema_sha256": "46196acbcc933a9b60f0a3151cf3a5822350c6988b7894a50f5722ac80f4abe2",
+  "feature_schema_version": "trafma.features/1",
+  "gpu": "not used by this baseline",
+  "method": "non-neural baselines",
+  "offline_supervision": "saved evaluator labels joined only for training/evaluation, never feature inputs",
+  "packages": {
+    "eclipse-sumo": "1.28.0",
+    "numpy": "2.5.4",
+    "pyyaml": "6.0.3",
+    "scikit-learn": null,
+    "sumolib": "1.28.0",
+    "torch": "2.14.1",
+    "traci": "1.28.0"
+  },
+  "platform": "Linux-6.18.44-fc-v233-x86_64-with-glibc2.39",
+  "python": "3.12.16",
+  "seed": 20261031,
+  "test_run_ids": [
+    "asymmetric_s4",
+    "free_s4",
+    "heavy_s4",
+    "moderate_s4"
+  ],
+  "train_run_ids": [
+    "asymmetric_s1",
+    "asymmetric_s2",
+    "free_s1",
+    "free_s2",
+    "heavy_s1",
+    "heavy_s2",
+    "moderate_s1",
+    "moderate_s2"
+  ],
+  "training": {
+    "distinct_windows": 232584,
+    "eligible_clients": 1796,
+    "fit_wall_time_s": 5.730831461999969,
+    "majority_class": 2,
+    "majority_class_histogram": [
+      92505,
+      33285,
+      106794
+    ],
+    "minimum_windows_per_client": 16,
+    "persistence_coverage": "RSU rows only; vehicle persistence is unavailable because the vehicle log has no local queue-length observation",
+    "signal_aware_method": "train-only scalar Ridge regression over local features; class derived from predicted queue using fixed thresholds"
+  },
+  "validation_run_ids": [
+    "asymmetric_s3",
+    "free_s3",
+    "heavy_s3",
+    "moderate_s3"
+  ],
+  "wall_duration_s": 14.326295
+}

@@ -1,0 +1,105 @@
+{
+  "global_train_label_hist": [
+    93303,
+    33344,
+    106834
+  ],
+  "groups": {
+    "approach": {
+      "E": {
+        "clients": 427,
+        "jensen_shannon_divergence_bits": 0.0004133340407255267,
+        "label_hist": [
+          22265,
+          7563,
+          22987
+        ]
+      },
+      "N": {
+        "clients": 503,
+        "jensen_shannon_divergence_bits": 0.0002689472522204358,
+        "label_hist": [
+          24658,
+          9404,
+          26935
+        ]
+      },
+      "S": {
+        "clients": 539,
+        "jensen_shannon_divergence_bits": 0.0025909426736787193,
+        "label_hist": [
+          25218,
+          9013,
+          36709
+        ]
+      },
+      "W": {
+        "clients": 398,
+        "jensen_shannon_divergence_bits": 0.0013684519823409652,
+        "label_hist": [
+          21162,
+          7364,
+          20203
+        ]
+      }
+    },
+    "scenario": {
+      "asymmetric": {
+        "clients": 523,
+        "jensen_shannon_divergence_bits": 0.0014489163682834816,
+        "label_hist": [
+          26571,
+          9191,
+          36056
+        ]
+      },
+      "free": {
+        "clients": 128,
+        "jensen_shannon_divergence_bits": 0.29327369615244114,
+        "label_hist": [
+          11489,
+          1723,
+          0
+        ]
+      },
+      "heavy": {
+        "clients": 768,
+        "jensen_shannon_divergence_bits": 0.010626491874645816,
+        "label_hist": [
+          35633,
+          11549,
+          64580
+        ]
+      },
+      "moderate": {
+        "clients": 448,
+        "jensen_shannon_divergence_bits": 0.07669402361702896,
+        "label_hist": [
+          19610,
+          10881,
+          6198
+        ]
+      }
+    },
+    "type": {
+      "rsu": {
+        "clients": 32,
+        "jensen_shannon_divergence_bits": 0.04529962996695154,
+        "label_hist": [
+          16253,
+          5162,
+          6137
+        ]
+      },
+      "vehicle": {
+        "clients": 1835,
+        "jensen_shannon_divergence_bits": 0.0007241821108273806,
+        "label_hist": [
+          77050,
+          28182,
+          100697
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "dataset_id": "phase2_compact_1500",
+  "experiments": [
+    {
+      "best_epoch": 89,
+      "cpu_threads": 1,
+      "device": "cpu",
+      "early_stopped": true,
+      "epochs_run": 104,
+      "experiment_id": "central_gru_phase2_compact_1500_seed20261031_20261104T070831Z",
+      "max_epochs": 150,
+      "method": "central_pooled_offline_gru",
+      "min_epochs": 50,
+      "sample_passes": 156000,
+      "test_windows": 300,
+      "train_windows": 1500,
+      "validation_windows": 300,
+      "wall_s": 6.104279500000075
+    },
+    {
+      "client_updates": 2000,
+      "clients": 20,
+      "clients_by_approach": {
+        "E": 5,
+        "N": 5,
+        "S": 5,
+        "W": 5
+      },
+      "clients_by_type": {
+        "rsu": 4,
+        "vehicle": 16
+      },
+      "cpu_threads": 1,
+      "edge_groups_per_round": 4,
+      "experiment_id": "hierarchical_fedavg_phase2_compact_1500_seed20261031_20261104T070857Z",
+      "local_epochs": 5,
+      "method": "hierarchical_sample_weighted_fedavg",
+      "rounds": 100,
+      "sample_passes": 750000,
+      "test_windows": 300,
+      "train_windows": 1500,
+      "validation_windows": 300,
+      "wall_s": 59.08292694700003,
+      "windows_per_client": 75
+    }
+  ],
+  "history_steps": 10,
+  "horizon_s": 30,
+  "integrity": {
+    "all_runs_have_complete_rsu_logs": true,
+    "evaluator_keys_found_in_agent_logs": [],
+    "split_run_overlap": [],
+    "total_collisions": 0,
+    "total_teleports": 0,
+    "windows_violating_run_or_horizon_rule": 0
+  },
+  "observations_and_windows": {
+    "test": {
+      "rsu_clients": 16,
+      "rsu_records": 14400,
+      "rsu_windows": 13776,
+      "vehicle_clients": 920,
+      "vehicle_records": 143462,
+      "vehicle_windows": 111067
+    },
+    "train": {
+      "rsu_clients": 32,
+      "rsu_records": 28800,
+      "rsu_windows": 27552,
+      "vehicle_clients": 1835,
+      "vehicle_records": 271026,
+      "vehicle_windows": 205929
+    },
+    "val": {
+      "rsu_clients": 16,
+      "rsu_records": 14400,
+      "rsu_windows": 13776,
+      "vehicle_clients": 920,
+      "vehicle_records": 139430,
+      "vehicle_windows": 106786
+    }
+  },
+  "scenarios": {
+    "asymmetric": {
+      "runs": {
+        "test": 1,
+        "train": 2,
+        "val": 1
+      },
+      "vehicles_per_run": 260
+    },
+    "free": {
+      "runs": {
+        "test": 1,
+        "train": 2,
+        "val": 1
+      },
+      "vehicles_per_run": 60
+    },
+    "heavy": {
+      "runs": {
+        "test": 1,
+        "train": 2,
+        "val": 1
+      },
+      "vehicles_per_run": 380
+    },
+    "moderate": {
+      "runs": {
+        "test": 1,
+        "train": 2,
+        "val": 1
+      },
+      "vehicles_per_run": 220
+    }
+  },
+  "simulation": {
+    "test": {
+      "runs": 4,
+      "sim_seconds": 3600,
+      "vehicles_arrived": 788,
+      "vehicles_departed": 920,
+      "vehicles_scheduled": 920,
+      "vehicles_unfinished": 132
+    },
+    "train": {
+      "runs": 8,
+      "sim_seconds": 7200,
+      "vehicles_arrived": 1579,
+      "vehicles_departed": 1835,
+      "vehicles_scheduled": 1840,
+      "vehicles_unfinished": 256
+    },
+    "val": {
+      "runs": 4,
+      "sim_seconds": 3600,
+      "vehicles_arrived": 796,
+      "vehicles_departed": 920,
+      "vehicles_scheduled": 920,
+      "vehicles_unfinished": 124
+    }
+  },
+  "vehicle_records_in_scope": 471466
+}

@@ -1,0 +1,21 @@
+# Compact dataset for the 1,500-sample Phase 2 experiments (central GRU + three-tier hierarchical FedAvg).
+#   python -m trafma collect --config configs/data_compact_1500.yaml [--resume]
+#
+# The four v1 scenarios (free / moderate / heavy / asymmetric, 900 s each, left-hand traffic by default) with fewer seeds:
+# 4 scenarios x (2 train + 1 val + 1 test seeds) = 16 runs. Seeds 1-4 are a subset of data.yaml's, so runs with the same
+# name are the same simulations as in phase2_v1 (apart from the driving side if that was generated right-hand).
+# Output layout: data/phase2_compact_1500/{train,val,test}/<scenario>_s<seed>/
+dataset_id: phase2_compact_1500
+output_dir: data
+jobs: 2
+base:
+  run: {duration_s: 900}
+scenarios:
+  - {name: free,       vehicles: 60,  profile: balanced}
+  - {name: moderate,   vehicles: 220, profile: balanced}
+  - {name: heavy,      vehicles: 380, profile: balanced}
+  - {name: asymmetric, vehicles: 260, profile: asymmetric}
+splits:
+  train: [1, 2]
+  val:   [3]
+  test:  [4]

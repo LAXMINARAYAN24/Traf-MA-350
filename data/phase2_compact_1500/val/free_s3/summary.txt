@@ -1,0 +1,16 @@
+=== TRAF-MA run free_s3 ===
+status            : completed  (sim end t=900.0 s, wall 1.891 s, TraCI closed cleanly: True)
+seed / N          : 3 / 60
+vehicles          : scheduled 60, departed 60, arrived 60, still active 0, never inserted 0
+RSUs              : rsu_N, rsu_E, rsu_S, rsu_W
+safety            : collisions 0, teleports 0, emergency stops 0
+messages          : vehicle reports sent 5579 -> coordinator accepted 5579 (relayed via parent RSU); RSU summaries 3600/3600
+                    rejected {'invalid': 0, 'duplicate': 0, 'stale': 0, 'out_of_order': 0, 'bad_provenance': 0}
+report fate       : {'coordinator_accepted': 5579}
+trips             : n=60 mean duration 92.983 s, mean waiting 38.783 s, max depart delay 0.9 s
+approach queue (zone, truth vs RSU-observed), metres:
+   N: mean 3.267 / obs 3.267, max 13.56
+   E: mean 4.761 / obs 4.761, max 36.019
+   S: mean 4.961 / obs 4.961, max 43.522
+   W: mean 4.291 / obs 4.291, max 36.01
+trace sha256      : a1f313302e559ecc...

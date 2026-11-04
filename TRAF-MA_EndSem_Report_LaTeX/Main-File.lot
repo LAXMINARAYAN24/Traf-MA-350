@@ -1,0 +1,10 @@
+\babel@toc {english}{}\relax 
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.3.1}{\ignorespaces Project objectives and implementation progress to date.}}{10}{table.caption.7}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.2.1}{\ignorespaces Saved 100-vehicle evaluation metrics. Lower is better for MAE/RMSE; higher is better for macro-F1/balanced accuracy.}}{16}{table.caption.9}%
+\contentsline {table}{\numberline {4.5.1}{\ignorespaces Class-level recall and precision derived from the saved confusion counts.}}{18}{table.caption.11}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {5.3.1}{\ignorespaces Project timeline and implementation status at report preparation.}}{25}{table.caption.15}%

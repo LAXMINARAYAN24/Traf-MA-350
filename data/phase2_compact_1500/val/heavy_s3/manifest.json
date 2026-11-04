@@ -1,0 +1,296 @@
+{
+ "approach_summary": {
+  "E": {
+   "max_zone_queue_m": 148.638,
+   "mean_rsu_observed_queue_m": 63.608,
+   "mean_zone_queue_m": 63.608
+  },
+  "N": {
+   "max_zone_queue_m": 148.701,
+   "mean_rsu_observed_queue_m": 67.339,
+   "mean_zone_queue_m": 67.339
+  },
+  "S": {
+   "max_zone_queue_m": 148.639,
+   "mean_rsu_observed_queue_m": 77.664,
+   "mean_zone_queue_m": 77.664
+  },
+  "W": {
+   "max_zone_queue_m": 148.554,
+   "mean_rsu_observed_queue_m": 64.978,
+   "mean_zone_queue_m": 64.978
+  }
+ },
+ "config": {
+  "agents": {
+   "halting_speed_mps": 0.1,
+   "queue_gap_m": 10.0,
+   "queue_start_m": 15.0,
+   "rsu_lateral_offset_m": 8.0,
+   "rsu_outbound_zone_m": 100.0,
+   "rsu_zone_m": 150.0,
+   "signal_broadcast": false,
+   "v2i_range_m": 400.0,
+   "vehicle_radius_m": 100.0
+  },
+  "comms": {
+   "i2c": {
+    "delay_s": 0.0,
+    "duplicate_prob": 0.0,
+    "loss_prob": 0.0
+   },
+   "seed_offset": 7,
+   "stale_after_s": 5.0,
+   "v2i": {
+    "delay_s": 0.0,
+    "duplicate_prob": 0.0,
+    "loss_prob": 0.0
+   }
+  },
+  "demand": {
+   "approach_weights": null,
+   "depart_resolution_s": 0.1,
+   "depart_tail_s": 120.0,
+   "max_vehicles": 5000,
+   "profile": "balanced",
+   "turn_probs": {
+    "left": 0.2,
+    "right": 0.2,
+    "straight": 0.6
+   }
+  },
+  "labels": {
+   "congestion_thresholds": [
+    0.1,
+    0.35
+   ],
+   "history_len": 10,
+   "horizon_s": 30.0,
+   "min_windows": 16
+  },
+  "network": {
+   "arm_length_m": 300.0,
+   "drive_side": "left",
+   "lanes_per_direction": 1,
+   "speed_limit_mps": 13.89
+  },
+  "run": {
+   "duration_s": 900,
+   "gui": false,
+   "gui_delay_ms": 50,
+   "message_trace": "exceptions",
+   "output_dir": "data\\phase2_compact_1500\\val",
+   "report_step_s": 1.0,
+   "run_id": "heavy_s3",
+   "seed": 3,
+   "step_s": 1.0,
+   "stop_when_empty": false,
+   "vehicles": 380,
+   "wall_timeout_s": 900.0
+  },
+  "signal": {
+   "all_red_s": 2.0,
+   "green_s": 25.0,
+   "yellow_s": 3.0
+  },
+  "vehicle": {
+   "accel_mps2": 2.6,
+   "decel_mps2": 4.5,
+   "length_m": 5.0,
+   "max_speed_mps": 13.89,
+   "min_gap_m": 2.5,
+   "sigma": 0.5,
+   "tau_s": 1.0
+  }
+ },
+ "coordinator": {
+  "direct_accepted": 3600,
+  "rejected": {
+   "bad_provenance": 0,
+   "duplicate": 0,
+   "invalid": 0,
+   "out_of_order": 0,
+   "stale": 0
+  },
+  "relayed_accepted": 69204
+ },
+ "counters": {
+  "collisions": 0,
+  "emergency_stops": 0,
+  "i2c_duplicated": 0,
+  "i2c_lost": 0,
+  "registry_mismatch": 0,
+  "rsu_summaries_sent": 3600,
+  "steps": 900,
+  "teleports": 0,
+  "v2i_dropped_range": 0,
+  "v2i_duplicated": 0,
+  "v2i_lost": 0,
+  "vehicle_reports_sent": 69204
+ },
+ "created_utc": "2026-11-04T09:31:18+00:00",
+ "end_sim_time_s": 900.0,
+ "error": null,
+ "files": {
+  "messages_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "net_sha256": "ddaadf2dcc270f7ce1280e9adcbb7ce75bc9f7298a4318af72233fb31a22370d",
+  "routes_sha256": "c3f5d75eb38026a98aed528436e4ec97f550dcb7192cd71772bc5c9aba4bc9e6",
+  "sumocfg": "scenario/scenario.sumocfg",
+  "topology_sha256": "154c8fcd33e325564f0c7a7b8864f02ae521cc019bc4694148579306157ae449"
+ },
+ "gui": false,
+ "message_trace_lines": 0,
+ "pending_ids": [],
+ "registry": {
+  "events_arrive": 305,
+  "events_depart": 380,
+  "rsus": [
+   "rsu_N",
+   "rsu_E",
+   "rsu_S",
+   "rsu_W"
+  ]
+ },
+ "reports_disposition": {
+  "coordinator_accepted": 69204
+ },
+ "reports_in_flight_or_unresolved": 0,
+ "rsu_child_stats": {
+  "rsu_E": {
+   "accepted": 17699,
+   "duplicate": 0,
+   "invalid": 0,
+   "not_my_child": 0,
+   "out_of_order": 0,
+   "stale": 0
+  },
+  "rsu_N": {
+   "accepted": 18633,
+   "duplicate": 0,
+   "invalid": 0,
+   "not_my_child": 0,
+   "out_of_order": 0,
+   "stale": 0
+  },
+  "rsu_S": {
+   "accepted": 18187,
+   "duplicate": 0,
+   "invalid": 0,
+   "not_my_child": 0,
+   "out_of_order": 0,
+   "stale": 0
+  },
+  "rsu_W": {
+   "accepted": 14685,
+   "duplicate": 0,
+   "invalid": 0,
+   "not_my_child": 0,
+   "out_of_order": 0,
+   "stale": 0
+  }
+ },
+ "run_id": "heavy_s3",
+ "seed": 3,
+ "status": "sim_timeout",
+ "sumo_error_log_bytes": 0,
+ "trace_sha256": "76b19c1ab157cbbff40098e065b26707d3fef76892a5aa40adce683cad3e1f33",
+ "traci_closed_cleanly": true,
+ "tripinfo": {
+  "count": 305,
+  "max_depart_delay_s": 2.1,
+  "mean_duration_s": 177.918,
+  "mean_time_loss_s": 132.458,
+  "mean_waiting_s": 111.285
+ },
+ "unfinished_ids": [
+  "veh_0291",
+  "veh_0296",
+  "veh_0299",
+  "veh_0302",
+  "veh_0305",
+  "veh_0306",
+  "veh_0307",
+  "veh_0308",
+  "veh_0310",
+  "veh_0311",
+  "veh_0312",
+  "veh_0313",
+  "veh_0314",
+  "veh_0315",
+  "veh_0316",
+  "veh_0318",
+  "veh_0319",
+  "veh_0320",
+  "veh_0322",
+  "veh_0323",
+  "veh_0325",
+  "veh_0326",
+  "veh_0327",
+  "veh_0328",
+  "veh_0329",
+  "veh_0330",
+  "veh_0331",
+  "veh_0332",
+  "veh_0333",
+  "veh_0334",
+  "veh_0335",
+  "veh_0336",
+  "veh_0337",
+  "veh_0338",
+  "veh_0339",
+  "veh_0340",
+  "veh_0341",
+  "veh_0342",
+  "veh_0343",
+  "veh_0344",
+  "veh_0345",
+  "veh_0346",
+  "veh_0347",
+  "veh_0348",
+  "veh_0349",
+  "veh_0350",
+  "veh_0351",
+  "veh_0352",
+  "veh_0353",
+  "veh_0354",
+  "veh_0355",
+  "veh_0356",
+  "veh_0357",
+  "veh_0358",
+  "veh_0359",
+  "veh_0360",
+  "veh_0361",
+  "veh_0362",
+  "veh_0363",
+  "veh_0364",
+  "veh_0365",
+  "veh_0366",
+  "veh_0367",
+  "veh_0368",
+  "veh_0369",
+  "veh_0370",
+  "veh_0371",
+  "veh_0372",
+  "veh_0373",
+  "veh_0374",
+  "veh_0375",
+  "veh_0376",
+  "veh_0377",
+  "veh_0378",
+  "veh_0379"
+ ],
+ "vehicles": 380,
+ "vehicles_active_at_end": 75,
+ "vehicles_arrived": 305,
+ "vehicles_departed": 380,
+ "vehicles_scheduled": 380,
+ "versions": {
+  "platform": "Windows-11-10.0.26300-SP0",
+  "python": "3.12.7",
+  "sumo": "SUMO 1.27.1",
+  "sumolib": "1.28.0",
+  "traci": "1.28.0",
+  "trafma": "0.1.0"
+ },
+ "wall_time_s": 7.328
+}

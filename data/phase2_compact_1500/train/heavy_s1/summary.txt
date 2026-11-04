@@ -1,0 +1,16 @@
+=== TRAF-MA run heavy_s1 ===
+status            : sim_timeout  (sim end t=900.0 s, wall 6.766 s, TraCI closed cleanly: True)
+seed / N          : 1 / 380
+vehicles          : scheduled 380, departed 380, arrived 296, still active 84, never inserted 0
+RSUs              : rsu_N, rsu_E, rsu_S, rsu_W
+safety            : collisions 0, teleports 0, emergency stops 0
+messages          : vehicle reports sent 64801 -> coordinator accepted 64801 (relayed via parent RSU); RSU summaries 3600/3600
+                    rejected {'invalid': 0, 'duplicate': 0, 'stale': 0, 'out_of_order': 0, 'bad_provenance': 0}
+report fate       : {'coordinator_accepted': 64801}
+trips             : n=296 mean duration 165.439 s, mean waiting 100.341 s, max depart delay 3.2 s
+approach queue (zone, truth vs RSU-observed), metres:
+   N: mean 49.708 / obs 49.708, max 148.551
+   E: mean 62.463 / obs 62.463, max 148.641
+   S: mean 56.216 / obs 56.216, max 148.676
+   W: mean 84.582 / obs 84.582, max 148.741
+trace sha256      : 4cbb6fba55564913...

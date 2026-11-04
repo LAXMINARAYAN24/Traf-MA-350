@@ -1,0 +1,73 @@
+\chapter{LITERATURE SURVEY}\label{ch:survey}
+
+\section{Scope and Approach}
+This survey selects nine papers that inform three parts of TRAF-MA: federated learning for transportation, traffic forecasting with distributed data, and trust or robust aggregation. The papers are grouped by topic. Each discussion identifies the question addressed, the method or evidence, and the limitation relevant to this project. The review is focused rather than exhaustive; the cited studies provide context, not a claim that their numerical results transfer to the present simulator.
+
+\subsection{Federated Learning for Transportation}
+\paragraph{Chellapandi et al. (2023).}
+Chellapandi et al. survey federated learning for connected and automated vehicles, covering system architectures, vehicle data, model families, applications, and security challenges \cite{chellapandi2023}. The survey describes FedAvg and methods intended to address non-IID client data, resource limits, mobility, and partial participation. For TRAF-MA, it establishes why traffic clients may have different local distributions and why mobility affects who can contribute. It is a survey across many vehicle applications; it does not evaluate the four-RSU hierarchy or the queue-prediction task used here.
+
+\paragraph{Zhang et al. (2024).}
+Zhang et al. review federated learning across traffic-flow prediction, object recognition, and vehicular edge computing \cite{zhang2024}. Their discussion covers privacy mechanisms, graph models, participant selection, communication reduction, and security threats such as falsified data or poisoned updates. The main relevance is that data locality and client reliability are separate concerns. Since the survey spans several tasks and system designs, it motivates evaluation criteria but does not specify a directly comparable model for TRAF-MA.
+
+\paragraph{Babar et al. (2026).}
+Babar et al. provide a system-level review of federated learning in intelligent transportation, including mobility-aware participation, personalization, asynchronous learning, privacy, and security \cite{babar2026}. The reviewed challenges support treating client heterogeneity and operational constraints as central research issues. This broad review does not establish that a particular trust mechanism is novel or that a particular model is best for a single intersection. TRAF-MA therefore frames these concerns as project questions and evaluates its own implementation independently.
+
+\subsection{Federated Traffic Prediction}
+\paragraph{Subbulakshmi et al. (2025).}
+Subbulakshmi et al. study a SUMO-based roundabout traffic-control setting that combines federated travel-time prediction with local recurrent models and a control pipeline \cite{subbulakshmi2025}. Their work is relevant as an example of using simulation to study distributed traffic learning. Its roundabout topology, target variable, control system, and communication assumptions differ from TRAF-MA's signalised intersection, future queue length, and congestion classes. The study's reported results are therefore not compared numerically with the results in Chapter~\ref{ch:results}.
+
+\paragraph{Shit and Subudhi (2025).}
+Shit and Subudhi propose federated graph learning for urban traffic optimization using METR-LA sensor data, with privacy and fairness mechanisms \cite{shit2025}. Their work illustrates how road-network structure can be represented with graph models and how communication or fairness objectives can be added to training. TRAF-MA currently models one intersection and does not implement graph learning, differential privacy, or secure aggregation. The paper thus motivates possible extensions but does not imply that these mechanisms are present in the current build.
+
+\subsection{Trust and Resilient Coordination}
+\paragraph{Amari et al. (2023).}
+Amari et al. survey trust management in vehicular ad-hoc networks and organize prior work by trust source, context, history, aggregation, and attack type \cite{amari2023}. Their taxonomy distinguishes judgements about an entity from judgements about an individual data item. That distinction is useful for future TRAF-MA work because a client may be generally reliable yet produce a faulty report, or may disagree honestly due to its observation scope. The survey is not an implementation of TRAF-MA's trust logic; that logic remains outside the current report's implemented scope.
+
+\paragraph{Tian, Mei, and Ma (2025).}
+Tian, Mei, and Ma study resilient consensus under communication delay using designated trusted nodes and robustness conditions \cite{tian2025}. Their work demonstrates that network structure and assumptions about trusted participants affect consensus guarantees. The setting is a general multi-agent system rather than traffic prediction, and trust is assigned structurally rather than learned from traffic evidence. It therefore informs the distinction between consensus research and the operational state summaries in TRAF-MA.
+
+\subsection{Robust Federated Learning}
+\paragraph{Zafar, Teixeira, and Toor (2025).}
+Zafar et al. propose a generative adversarial network based defence that creates synthetic validation data to assess client updates under poisoning attacks \cite{zafar2025}. This work is relevant to a future TRAF-MA security experiment because it avoids depending on an external labelled validation set. Its benchmark tasks and threat model differ from this traffic simulator, and its reported results are not used as TRAF-MA measurements. Benign non-IID disagreement would need to be tested explicitly before applying such a filter to vehicle or RSU clients.
+
+\section{Outcome of the Literature Survey}
+The reviewed work supports four practical conclusions. First, federated learning is a suitable framework for studying collaboration when raw examples remain with clients, but it is not by itself a guarantee of privacy or client honesty \cite{mcmahan2017,chellapandi2023}. Second, transportation clients can differ by location, role, and participation; consequently, non-IID behaviour needs measurement rather than assumption. Third, temporal and spatial traffic models serve different inputs: graph architectures generally rely on multiple connected sensors, whereas TRAF-MA's current model consumes one client's bounded ten-step history. Fourth, trust or robust aggregation methods make assumptions about adversaries, reference data, and benign variation. Those assumptions must be made explicit before applying a method to traffic agents.
+
+For this interim report, the evidence-producing work focuses on the early implementation milestones toward the overall project problem: a reproducible intersection baseline that records client observation scope and compares pooled prediction with hierarchical FedAvg under natural client heterogeneity. The larger project gap remains the design and evaluation of secure heterogeneous FL traffic agents that share reliable traffic information without exchanging raw data. The planned trust layer requires its own threat model and attack experiments; this report does not claim that TRAF-MA has already solved malicious behaviour.
+
+\section{Problem Statement and Objectives}\label{sec:problem}
+\subsection{Problem Statement}
+The project problem statement is: \emph{To design and develop secure heterogeneous FL traffic agents that collaboratively learn and share reliable traffic information without exchanging raw data.}
+
+\subsection{Objectives}
+The project's main objectives are:
+\begin{enumerate}
+  \item To design and develop lightweight FL local models for congestion-class classification and queue-length regression for non-IID heterogeneous local datasets.
+  \item To design and develop a trust engine using contextual consistency, prediction consistency, model-update quality, network reliability and temporal behaviour.
+  \item To perform a formal security analysis to check the attack robustness and trust recovery of the proposed model.
+  \item To evaluate the efficacy of the proposed model using SUMO and other simulation tools.
+\end{enumerate}
+
+\subsection{Semester Objectives and Current Progress}
+The four main objectives are divided into seven work objectives across the two semesters. O1--O3 establish the literature review, design, SUMO environment and a working federated-learning baseline. O4--O7 continue the project through trust, robustness, recovery, monitoring and end-to-end evaluation. The progress column records the state covered by this interim report; it does not redefine the objectives.
+
+\begin{table}[ht]
+\centering
+\caption{Project objectives and implementation progress to date.}
+\label{tab:objectives}
+\small
+\begin{tabularx}{\linewidth}{p{0.09\linewidth}p{0.23\linewidth}Yp{0.27\linewidth}}
+\toprule
+ID & Objective & Project objective & Progress in this report\\
+\midrule
+O1 & Literature review and architecture & Review federated traffic intelligence, multi-agent systems, trust-aware learning and adversarial robustness; identify gaps and design the layered architecture and common representation. & Survey and architecture are documented; design is aligned to the current implementation.\\
+O2 & Multi-agent traffic environment & Build a SUMO single-intersection scenario with 5--10 vehicle agents and one traffic-signal agent, each with a limited agent-appropriate observation; generate semantic traffic state and a common representation for heterogeneous agents. & The simulation and bounded observations are implemented. The current build has four persistent RSUs and configurable vehicles; its fixed-time signal is an environment object, not a learning agent.\\
+O3 & Federated traffic prediction & Develop lightweight local models for congestion classification and queue-length regression, with FedAvg and non-IID local datasets. & Compact dataset, central GRU and hierarchical FedAvg are implemented and evaluated; clean single-seed results are reported.\\
+O4 & Context-aware trust and anomaly detection & Combine contextual, physical/prediction, model-update, network and temporal evidence; distinguish legitimate disagreement and produce anomaly indications. & Continuing objective; trust scoring and anomaly detection are not implemented in the results reported here.\\
+O5 & Trust-aware aggregation and consensus & Use trust to weight federated updates and traffic-state consensus. & Continuing objective; current HFL uses FedAvg and no trust weights or trust-aware consensus.\\
+O6 & Attack robustness and trust recovery & Evaluate false-observation and model-poisoning attacks, quarantine, monitoring and recovery. & Continuing objective; attack hooks, quarantine and recovery have not been evaluated here.\\
+O7 & Monitoring, dashboard and evaluation & Integrate the system behind a real-time dashboard and evaluate prediction, security and communication efficiency. & Continuing objective; this interim report evaluates prediction only and does not include a live dashboard.\\
+\bottomrule
+\end{tabularx}
+\end{table}

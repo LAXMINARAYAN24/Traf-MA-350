@@ -1,0 +1,217 @@
+\documentclass[12pt]{report}
+\usepackage{pdfpages}
+\usepackage{lscape}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    %filecolor=magenta,      
+    urlcolor=black,
+    breaklinks=true,
+   % citecolor=blue,
+}
+\usepackage[nottoc,notlof,notlot]{tocbibind} 
+\usepackage{framed}
+\usepackage{rotfloat}
+\usepackage{subfig}
+\usepackage{graphicx}
+\usepackage{caption} 
+%\captionsetup[table]{skip=10pt}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{verbatim}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage[english]{babel}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pbox}
+\usepackage{url}
+\usepackage{tkz-graph}
+\usetikzlibrary{arrows}
+\usepackage{array}
+\usepackage{amssymb}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\usepackage{ragged2e}
+\usepackage{slashbox}
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
+\usepackage{sectsty}
+\usepackage{comment}
+\usepackage{soul}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{chngcntr}
+\usepackage{cancel}
+\usepackage{multirow}
+%\usepackage{subfigure}
+\usepackage[toc,page]{appendix}
+\usepackage{tikz}
+\usepackage{setspace}
+\usepackage{afterpage}
+\usetikzlibrary{shapes,arrows}
+\graphicspath{ {images/} }
+%\topmargin -23 mm
+\providecommand{\keywords}[1]{\textbf{\textit{Keywords---}} #1}
+%\headheight 8pt
+%\oddsidemargin 0mm
+%\evensidemargin -5mm
+\textwidth 161mm
+\textheight 210mm
+\linespread{1}
+%\footskip = 60pt
+\usepackage{titlesec}
+\chapterfont{\centering}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+\renewcommand{\baselinestretch}{1.3} 
+\titleformat{\chapter}[display]   
+{\normalfont\huge\bfseries\centering}{\chaptertitlename\ \thechapter}{10pt}{\Huge\centering}   
+\titlespacing*{\chapter}{0pt}{-50pt}{5pt}
+\usepackage{pdfpages}
+\usepackage[linesnumbered,ruled]{algorithm2e}
+% ---------------------------------------------------------------------------
+% ADDED (compile fix): packages, colours, column types and macros that the
+% chapters use but which were never defined. Nothing here changes fonts,
+% margins, spacing or any existing style setting.
+% ---------------------------------------------------------------------------
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}   % provides xcolor + colortbl (\rowcolor, \cellcolor)
+\definecolor{softblue}{RGB}{221,235,247}
+\definecolor{rowgray}{RGB}{235,235,235}
+% colours used by the TikZ diagrams in Chapter 3 (traffic-light style palette)
+\definecolor{navy}{RGB}{31,56,100}
+\definecolor{softgreen}{RGB}{226,239,218}
+\definecolor{softamber}{RGB}{255,242,204}
+\definecolor{softred}{RGB}{248,215,218}
+\definecolor{softpurple}{RGB}{228,223,236}
+\usetikzlibrary{arrows.meta}   % provides the 'Stealth' arrow tip used in Chapter 3
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}   % left, fixed width
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}     % centred, fixed width
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}          % stretchy left column (tabularx)
+\providecommand{\trafma}{TRAF-MA}
+\providecommand{\tentative}{$^{\dagger}$}                    % marks a working / tentative choice
+% Harvey-ball rating symbols used in the survey comparison table
+\newcommand{\hbnone}{\tikz[baseline=-0.6ex]{\draw[line width=0.4pt] (0,0) circle (0.9ex);}}
+\newcommand{\hbhalf}{\tikz[baseline=-0.6ex]{\draw[line width=0.4pt] (0,0) circle (0.9ex); \fill (0,0) -- (0,0.9ex) arc (90:-90:0.9ex) -- cycle;}}
+\newcommand{\hbfull}{\tikz[baseline=-0.6ex]{\filldraw[line width=0.4pt] (0,0) circle (0.9ex);}}
+% ---------------------------------------------------------------------------
+\usepackage[  
+ top    = 1.5in,
+  bottom = 1in,
+  left   = 1.5in,
+  right  = 1in, 
+  %headsep=5mm,%%% Example
+  %includeheadfoot%%%%%%%%%%%%%%%%%%%%%%%%%%
+  ]{geometry}
+%below code used for page bordering
+\iffalse
+\usepackage{pgf}
+\usepackage{pgfpages}0
+\pgfpagesdeclarelayout{boxed}
+{
+  \edef\pgfpageoptionborder{4pt}
+}
+{
+  \pgfpagesphysicalpageoptions
+  {%
+    logical pages=1,%
+  }
+  \pgfpageslogicalpageoptions{1}
+  {
+    border code=\pgfsetlinewidth{1.5pt}\pgfstroke,%
+    border shrink=\pgfpageoptionborder,%
+    resized width=.95\pgfphysicalwidth,%
+    resized height=.95\pgfphysicalheight,%
+    center=\pgfpoint{.5\pgfphysicalwidth}{.5\pgfphysicalheight}%
+  }%
+}
+\pgfpagesuselayout{boxed}
+\setlength{\parindent}{2cm}
+\usetikzlibrary{calc}
+\usepackage{eso-pic}
+\fi
+
+\begin{document}
+% Cover, declaration, certificate and acknowledgement are unnumbered.
+\renewcommand*{\thepage}{cover-\arabic{page}}
+\pagestyle{empty}
+\counterwithin{table}{section}
+\counterwithin{figure}{section}
+\iffalse
+\AddToShipoutPictureBG*{%
+\begin{tikzpicture}[overlay,remember picture]
+\draw[line width=4pt]
+    ($ (current page.north west) + (1cm,-1cm) $)
+    rectangle
+    ($ (current page.south east) + (-1cm,1cm) $);
+\draw[line width=1.5pt]
+    ($ (current page.north west) + (1.2cm,-1.2cm) $)
+    rectangle
+    ($ (current page.south east) + (-1.2cm,1.2cm) $);
+\end{tikzpicture}
+}
+\fi
+\input{./Coverpage.tex}
+\clearpage
+\input{./Declaration.tex}
+\clearpage
+\input{./Certificate.tex}
+\clearpage
+\input{./Acknowledgement.tex}
+\clearpage
+
+\hypersetup{pageanchor=false}
+\pagenumbering{roman}
+\pagestyle{plain}
+\input{./Abstract.tex}
+\renewcommand*{\contentsname}{\MakeUppercase{Contents}}
+\renewcommand*{\listfigurename}{\MakeUppercase{List of Figures}}
+\renewcommand*{\listtablename}{\MakeUppercase{List of Tables}}
+\renewcommand{\bibname}{REFERENCES}
+\tableofcontents
+\clearpage
+
+\begingroup
+\addcontentsline{toc}{chapter}{LIST OF FIGURES}
+\listoffigures
+\clearpage
+\endgroup
+
+\begingroup
+\addcontentsline{toc}{chapter}{LIST OF TABLES}
+\listoftables
+\clearpage
+\endgroup
+
+\input{./Abbreviations.tex}
+\clearpage
+
+\renewcommand{\chaptername}{CHAPTER}
+\clearpage
+\hypersetup{pageanchor=true}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+% ===================================================Chapter 1===============================================================
+\input{./Chapter-1.tex}
+% ===================================================Chapter 2===============================================================
+\input{./Chapter-2.tex}
+%====================================================Chapter 3===============================================================
+\input{./Chapter-3.tex}
+%====================================================Chapter 4===============================================================
+\input{./Chapter-4.tex}
+%===================================================Chapter5=================================================================
+\input{./Chapter-5.tex}
+
+% References, Appendix and Timeline (hand-written thebibliography lives in ref.tex;
+% the old \bibliography{ref.bib} call pointed at unused template entries, so it was removed)
+\input{./ref.tex}
+\newpage
+
+
+\end{document}

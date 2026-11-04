@@ -1,0 +1,71 @@
+{
+  "best_epoch": 89,
+  "checkpoint_sha256": "8914c73461c72c1df46c842759fce6758d37e7b00adf99d63b546db3d68d59f8",
+  "code_commit": null,
+  "code_worktree_dirty": null,
+  "config_sha256": "459f1f5bb2491bb0bbcf80be43d347e9eb748fd7cd169e08b0ec529a1401a899",
+  "cpu": {
+    "logical_cores": 24,
+    "processor": "Intel64 Family 6 Model 191 Stepping 2, GenuineIntel"
+  },
+  "cpu_threads": 24,
+  "cuda": {
+    "cuda_version": "12.6",
+    "index": null,
+    "name": "NVIDIA GeForce RTX 4050 Laptop GPU",
+    "torch_version": "2.14.1+cu126"
+  },
+  "dataset_id": "phase2_compact_1500",
+  "dataset_manifest_sha256": "9d418d07542fce9b4b242e3be042ead216cff1aae6b90189678bb1353796a875",
+  "deterministic_algorithms": true,
+  "device": "cuda",
+  "device_requested": "auto",
+  "early_stopped": true,
+  "early_stopping_patience": 15,
+  "epochs_run": 104,
+  "evaluation_seed": 20261031,
+  "experiment_ended_utc": "2026-11-04T09:37:04.541231+00:00",
+  "experiment_id": "central_gru_phase2_compact_1500_seed20261031_20261104T093628Z",
+  "experiment_started_utc": "2026-11-04T09:36:28.360066+00:00",
+  "feature_schema_sha256": "46196acbcc933a9b60f0a3151cf3a5822350c6988b7894a50f5722ac80f4abe2",
+  "feature_schema_version": "trafma.features/1",
+  "inference_latency_ms_mean": 0.010444573817122464,
+  "local_training_client": null,
+  "max_epochs": 150,
+  "method": "central_pooled_offline_gru",
+  "min_epochs": 50,
+  "parameters": 5972,
+  "platform": "Windows-11-10.0.26300-SP0",
+  "python": "3.12.7",
+  "seed": 20261031,
+  "selected_window_counts": {
+    "test": 300,
+    "train": 1500,
+    "validation": 300
+  },
+  "test_run_ids": [
+    "asymmetric_s4",
+    "free_s4",
+    "heavy_s4",
+    "moderate_s4"
+  ],
+  "train_run_ids": [
+    "asymmetric_s1",
+    "asymmetric_s2",
+    "free_s1",
+    "free_s2",
+    "heavy_s1",
+    "heavy_s2",
+    "moderate_s1",
+    "moderate_s2"
+  ],
+  "training_wall_time_s": 24.193356799994945,
+  "validation_inference_latency_ms_mean": 0.017744488753702502,
+  "validation_run_ids": [
+    "asymmetric_s3",
+    "free_s3",
+    "heavy_s3",
+    "moderate_s3"
+  ],
+  "wall_duration_s": 36.1807986000058
+}

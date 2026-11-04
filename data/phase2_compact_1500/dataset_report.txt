@@ -1,0 +1,35 @@
+=== dataset report ===
+congestion rule : queue_zone/zone_len < 0.1 -> 0 free; < 0.35 -> 1 moderate; else 2 heavy
+horizon 30.0 s, history 10 steps, trainable if >= 16 windows
+
+run                      split    N  dep  arr unf coll rsuLogs
+asymmetric_s1            train  260  255  213  42    0 ok
+asymmetric_s2            train  260  260  214  46    0 ok
+asymmetric_s3            val    260  260  213  47    0 ok
+asymmetric_s4            test   260  260  205  55    0 ok
+free_s1                  train   60   60   60   0    0 ok
+free_s2                  train   60   60   59   1    0 ok
+free_s3                  val     60   60   60   0    0 ok
+free_s4                  test    60   60   60   0    0 ok
+heavy_s1                 train  380  380  296  84    0 ok
+heavy_s2                 train  380  380  299  81    0 ok
+heavy_s3                 val    380  380  305  75    0 ok
+heavy_s4                 test   380  380  304  76    0 ok
+moderate_s1              train  220  220  219   1    0 ok
+moderate_s2              train  220  220  219   1    0 ok
+moderate_s3              val    220  220  218   2    0 ok
+moderate_s4              test   220  220  219   1    0 ok
+
+split/client-type   clients trainable windows   label hist [free, moderate, heavy]
+test/rsu                 16        16   13776   [8102, 2363, 3311]
+test/vehicle            920       886  111067   [40306, 14181, 56580]
+train/rsu                32        32   27552   [16253, 5162, 6137]
+train/vehicle          1835      1764  205929   [77050, 28182, 100697]
+val/rsu                  16        16   13776   [7949, 2736, 3091]
+val/vehicle             920       902  106786   [39439, 15734, 51613]
+
+measured non-IID skew (train, trainable clients; TV distance of client label dist. to pooled):
+  rsu      n=32 mean TV 0.2911, max 0.4393, pooled [16253, 5162, 6137]
+  vehicle  n=1764 mean TV 0.2895, max 0.8628, pooled [76252, 28123, 100657]
+
+integrity: split overlap=none; window rule violations=0; evaluator keys in agent logs=none; complete RSU logs=True; collisions=0, teleports=0

@@ -1,0 +1,41 @@
+{
+  "baseline_run": "client_count_20_20261104T094318Z\\baseline_phase2_compact_1500_20261104T071004Z",
+  "dataset": "data\\phase2_compact_1500",
+  "experiment_runs": [
+    "client_count_20_20261104T094318Z\\central_gru_phase2_compact_1500_seed20261031_20261104T093628Z",
+    "client_count_20_20261104T094318Z\\hierarchical_fedavg_phase2_compact_1500_seed20261031_20261104T094318Z"
+  ],
+  "input_sha256": {
+    "baseline_manifest_sha256": "aef902f1c8708f9acc0d25ea1df76e70a0967ad7f08760a9bc70807008917144",
+    "baseline_predictions_sha256": "d5d7c1eaf5f8e60aa8a9ac206c19b0150205abb2874abc9820109c87608423ae",
+    "dataset_manifest_sha256": "9d418d07542fce9b4b242e3be042ead216cff1aae6b90189678bb1353796a875",
+    "experiments": {
+      "client_count_20_20261104T094318Z\\central_gru_phase2_compact_1500_seed20261031_20261104T093628Z": {
+        "manifest.json": "6c7d43a6e005a88c61e113848c2a2aad26cfcc56be0369edca5e70da758ba5c4",
+        "metrics.json": "f0d5c0f33392d08186e43a09ae81a00073a1a7d701a704fff850b8f9e80f3bd5",
+        "predictions.csv": "4edbde9443911a65ed77800e860fcdb7787c472d0d3d25cc5a271f76a854695b"
+      },
+      "client_count_20_20261104T094318Z\\hierarchical_fedavg_phase2_compact_1500_seed20261031_20261104T094318Z": {
+        "manifest.json": "14dc665c7ecb7a9045676a88dac6079d2d7353647dededb9d25193da64cfb46b",
+        "metrics.json": "fe174e0d064fa0219c4b9b4cf024ca754be1b19f63cf9a665a2fdbb0eb60c551",
+        "predictions.csv": "12ff53398b81075467c8110b041a4cb0a2ef31cf56a16750dfe16f15df62c9fc"
+      }
+    }
+  },
+  "matched_test_rows": 300,
+  "plot_files": [
+    "matched_metrics.png",
+    "label_skew_js.png",
+    "confusion_matrices.png",
+    "validation_curves.png",
+    "federation_costs.png",
+    "label_distributions.png",
+    "feature_availability.png",
+    "central_queue_scatter.png",
+    "approach_breakdown.png",
+    "client_sample_counts.png"
+  ],
+  "report_started_utc": "2026-11-04T10:02:48.995952+00:00",
+  "statistics_run": null,
+  "statistics_summary_sha256": null
+}

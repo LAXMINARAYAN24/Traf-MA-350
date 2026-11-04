@@ -1,0 +1,24 @@
+{
+  "train": [
+    "asymmetric_s1",
+    "asymmetric_s2",
+    "free_s1",
+    "free_s2",
+    "heavy_s1",
+    "heavy_s2",
+    "moderate_s1",
+    "moderate_s2"
+  ],
+  "val": [
+    "asymmetric_s3",
+    "free_s3",
+    "heavy_s3",
+    "moderate_s3"
+  ],
+  "test": [
+    "asymmetric_s4",
+    "free_s4",
+    "heavy_s4",
+    "moderate_s4"
+  ]
+}
