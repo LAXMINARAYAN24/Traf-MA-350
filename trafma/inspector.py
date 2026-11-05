@@ -21,6 +21,14 @@ class InspectError(ValueError):
 
 
 def _jl(p: Path):
+    """Handles  jl for the values provided.
+
+    Args:
+        p: Value used by this function.
+
+    Returns:
+        None.
+    """
     with open(p, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -29,6 +37,16 @@ def _jl(p: Path):
 
 
 def _fmt(x, nd=1, none="-"):
+    """Handles  fmt for the values provided.
+
+    Args:
+        x: Value used by this function.
+        nd: Value used by this function.
+        none: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     if x is None:
         return none
     if isinstance(x, float):
@@ -37,6 +55,17 @@ def _fmt(x, nd=1, none="-"):
 
 
 def _on_grid(t: float, every: float, t_from: float, t_to) -> bool:
+    """Handles  on grid for the values provided.
+
+    Args:
+        t: Value used by this function.
+        every: Value used by this function.
+        t_from: Value used by this function.
+        t_to: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     if t < t_from or (t_to is not None and t > t_to):
         return False
     if every <= 0:
@@ -46,6 +75,14 @@ def _on_grid(t: float, every: float, t_from: float, t_to) -> bool:
 
 
 def _manifest(run_dir: Path) -> dict:
+    """Handles  manifest for the values provided.
+
+    Args:
+        run_dir: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     p = run_dir / "manifest.json"
     if not p.is_file():
         raise InspectError(f"not a run directory (no manifest.json): {run_dir}")
@@ -66,6 +103,14 @@ def _message_paths(run_dir: Path, vid: str):
 
 
 def _describe_event(e: dict) -> str:
+    """Handles  describe event for the values provided.
+
+    Args:
+        e: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     ev, frm, to, link = e["ev"], e["from"], e["to"], e.get("link", "")
     why = f" ({e['reason']})" if e.get("reason") else ""
     if ev == "send":
@@ -81,6 +126,20 @@ def _describe_event(e: dict) -> str:
 
 def inspect_vehicle(run_dir, vid: str, every: float = 10.0, t_from: float = 0.0, t_to=None,
                     max_paths: int = 5, out=print) -> dict:
+    """Checks inspect vehicle for the values provided.
+
+    Args:
+        run_dir: Value used by this function.
+        vid: Value used by this function.
+        every: Value used by this function.
+        t_from: Value used by this function.
+        t_to: Value used by this function.
+        max_paths: Value used by this function.
+        out: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     run_dir = Path(run_dir)
     m = _manifest(run_dir)
     log = run_dir / "agents" / f"{vid}.jsonl"
@@ -146,6 +205,19 @@ def inspect_vehicle(run_dir, vid: str, every: float = 10.0, t_from: float = 0.0,
 
 
 def inspect_rsu(run_dir, approach: str, every: float = 10.0, t_from: float = 0.0, t_to=None, out=print) -> dict:
+    """Checks inspect rsu for the values provided.
+
+    Args:
+        run_dir: Value used by this function.
+        approach: Value used by this function.
+        every: Value used by this function.
+        t_from: Value used by this function.
+        t_to: Value used by this function.
+        out: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     run_dir = Path(run_dir)
     m = _manifest(run_dir)
     approach = approach.upper()

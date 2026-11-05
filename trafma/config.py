@@ -121,13 +121,35 @@ class Config:
     labels: LabelCfg = field(default_factory=LabelCfg)
 
     def to_dict(self) -> dict:
+        """Handles to dict for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         return dataclasses.asdict(self)
 
     def validate(self) -> "Config":
+        """Checks validate for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         r, n, s, d, v, a, c, lb = (self.run, self.network, self.signal, self.demand,
                                    self.vehicle, self.agents, self.comms, self.labels)
 
         def num(x, name, lo=None, hi=None, strict_lo=False):
+            """Handles num for the values provided.
+
+            Args:
+                x: Value used by this function.
+                name: Value used by this function.
+                lo: Value used by this function.
+                hi: Value used by this function.
+                strict_lo: Value used by this function.
+
+            Returns:
+                None.
+            """
             if isinstance(x, bool) or not isinstance(x, (int, float)) or not math.isfinite(x):
                 raise ConfigError(f"{name} must be a finite number, got {x!r}")
             if lo is not None and (x <= lo if strict_lo else x < lo):
@@ -212,6 +234,15 @@ class Config:
 
 
 def _build(cls, data: Any, path: str = ""):
+    """Handles  build for the values provided.
+
+    Args:
+        data: Value used by this function.
+        path: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     if data is None:
         data = {}
     if not isinstance(data, dict):
@@ -235,6 +266,15 @@ def _build(cls, data: Any, path: str = ""):
 
 
 def deep_merge(base: dict, over: dict) -> dict:
+    """Handles deep merge for the values provided.
+
+    Args:
+        base: Value used by this function.
+        over: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     out = copy.deepcopy(base)
     for k, v in (over or {}).items():
         if isinstance(v, dict) and isinstance(out.get(k), dict):
@@ -245,10 +285,27 @@ def deep_merge(base: dict, over: dict) -> dict:
 
 
 def config_from_dict(d: dict) -> Config:
+    """Handles config from dict for the values provided.
+
+    Args:
+        d: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return _build(Config, d).validate()
 
 
 def load_config(path: Optional[str | Path] = None, overrides: Optional[dict] = None) -> Config:
+    """Loads or reads load config for the values provided.
+
+    Args:
+        path: Value used by this function.
+        overrides: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     data: dict = {}
     if path is not None:
         p = Path(path)

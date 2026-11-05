@@ -1,4 +1,6 @@
-"""Ground-truth world snapshot (evaluator/sensor-layer only) and the TraCI adapter.
+"""**SUMO/** This file is part of the SUMO related functionality. It controls SUMO through TraCI and returns simulation snapshots.
+
+Ground-truth world snapshot (evaluator/sensor-layer only) and the TraCI adapter.
 
 Agents NEVER receive a WorldSnapshot. They receive only the views produced by sensors.py.
 """
@@ -54,6 +56,17 @@ class SumoStartError(RuntimeError):
 
 class TraciWorld:
     def __init__(self, sumocfg: Path, cfg, tls_id: str, label: str = "trafma"):
+        """Sets up this object using the values provided.
+
+        Args:
+            sumocfg: Value used by this function.
+            cfg: Value used by this function.
+            tls_id: Value used by this function.
+            label: Value used by this function.
+
+        Returns:
+            None.
+        """
         self.sumocfg, self.cfg, self.tls_id, self.label = Path(sumocfg), cfg, tls_id, label
         self.conn = None
         self.closed_cleanly: Optional[bool] = None
@@ -62,6 +75,14 @@ class TraciWorld:
 
     # ---------------------------------------------------------------- lifecycle
     def start(self, gui: bool = False):
+        """Handles start for the values provided.
+
+        Args:
+            gui: Value used by this function.
+
+        Returns:
+            None.
+        """
         import sumolib
         import traci
         binary = sumolib.checkBinary("sumo-gui" if gui else "sumo")
@@ -88,6 +109,11 @@ class TraciWorld:
                       self._tc.VAR_ROAD_ID, self._tc.VAR_WAITING_TIME, self._tc.VAR_ACCELERATION]
 
     def close(self):
+        """Finishes or delivers close for the values provided.
+
+        Returns:
+            None.
+        """
         if self.conn is None:
             return
         try:
@@ -101,9 +127,19 @@ class TraciWorld:
     # ---------------------------------------------------------------- stepping
     @property
     def time(self) -> float:
+        """Finds or calculates time for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         return self.conn.simulation.getTime()
 
     def step(self) -> StepEvents:
+        """Handles step for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         c = self.conn
         c.simulationStep()
         dep = list(c.simulation.getDepartedIDList())
@@ -118,6 +154,11 @@ class TraciWorld:
         )
 
     def snapshot(self) -> WorldSnapshot:
+        """Finds or calculates snapshot for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         c, tc = self.conn, self._tc
         now = self.time
         vs = {}
@@ -132,10 +173,24 @@ class TraciWorld:
 
     # ---------------------------------------------------------------- GUI helpers
     def color_vehicle(self, vid: str, rgba: tuple):
+        """Handles color vehicle for the values provided.
+
+        Args:
+            vid: Value used by this function.
+            rgba: Value used by this function.
+
+        Returns:
+            None.
+        """
         try:
             self.conn.vehicle.setColor(vid, rgba)
         except Exception:
             pass
 
     def wall(self) -> float:
+        """Handles wall for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         return _time.monotonic()

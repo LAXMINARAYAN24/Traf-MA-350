@@ -8,6 +8,16 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def expand(monkeypatch, tmp_path, cfg_name):
+    """Handles expand for the values provided.
+
+    Args:
+        monkeypatch: Value used by this function.
+        tmp_path: Value used by this function.
+        cfg_name: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     seen = []
     monkeypatch.setattr(C, "_run_one", lambda cd: (seen.append(cd) or {"run": cd["run"]["run_id"], "status": "stub"}))
     monkeypatch.setattr(C, "build_dataset_manifest", lambda *a, **k: {})
@@ -18,11 +28,31 @@ def expand(monkeypatch, tmp_path, cfg_name):
 
 
 def test_original_v1_config_unchanged(monkeypatch, tmp_path):
+    """Checks that original v1 config unchanged.
+
+    Args:
+        monkeypatch: Value used by this function.
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     assert len(expand(monkeypatch, tmp_path, "data.yaml")) == 24
 
 
 @pytest.mark.parametrize("name,bcast", [("data_v2.yaml", None), ("data_v2_broadcast.yaml", True)])
 def test_v2_grid(monkeypatch, tmp_path, name, bcast):
+    """Checks that v2 grid.
+
+    Args:
+        monkeypatch: Value used by this function.
+        tmp_path: Value used by this function.
+        name: Value used by this function.
+        bcast: Value used by this function.
+
+    Returns:
+        None.
+    """
     runs = expand(monkeypatch, tmp_path, name)
     assert len(runs) == 8 * 20
     ids = [r["run"]["run_id"] for r in runs]
@@ -43,6 +73,15 @@ def test_v2_grid(monkeypatch, tmp_path, name, bcast):
 
 
 def test_v2_and_broadcast_variants_have_identical_run_grids(monkeypatch, tmp_path):
+    """Checks that v2 and broadcast variants have identical run grids.
+
+    Args:
+        monkeypatch: Value used by this function.
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     a = {(r["run"]["run_id"], r["run"]["vehicles"], r["run"]["seed"]) for r in expand(monkeypatch, tmp_path, "data_v2.yaml")}
     b = {(r["run"]["run_id"], r["run"]["vehicles"], r["run"]["seed"])
          for r in expand(monkeypatch, tmp_path, "data_v2_broadcast.yaml")}
@@ -50,6 +89,15 @@ def test_v2_and_broadcast_variants_have_identical_run_grids(monkeypatch, tmp_pat
 
 
 def test_dev_grid_is_a_seed_subset_of_the_full_grid(monkeypatch, tmp_path):
+    """Checks that dev grid is a seed subset of the full grid.
+
+    Args:
+        monkeypatch: Value used by this function.
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     full = {r["run"]["run_id"]: r for r in expand(monkeypatch, tmp_path, "data_v2.yaml")}
     dev = {r["run"]["run_id"]: r for r in expand(monkeypatch, tmp_path, "data_v2_dev.yaml")}
     assert len(dev) == 8 * 6 and set(dev) <= set(full)

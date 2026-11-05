@@ -1,3 +1,5 @@
+"""Test helpers for test live federation."""
+
 from pathlib import Path
 import numpy as np
 import pytest
@@ -11,6 +13,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def _learner(tmp_path):
+    """Handles  learner for the values provided.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     learner = LiveFederation(ROOT / "configs" / "learning.yaml")
     learner.run_id = "live-test"
     learner.run_dir = tmp_path
@@ -19,6 +29,17 @@ def _learner(tmp_path):
 
 
 def _training_windows(client_id, client_type, approach, count):
+    """Handles  training windows for the values provided.
+
+    Args:
+        client_id: Value used by this function.
+        client_type: Value used by this function.
+        approach: Value used by this function.
+        count: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     features = [[0.0] * FEATURE_DIM for _ in range(10)]
     return [
         FeatureWindow(
@@ -32,6 +53,14 @@ def _training_windows(client_id, client_type, approach, count):
 
 
 def test_vehicle_requires_matured_windows_before_becoming_trainable(tmp_path):
+    """Checks that vehicle requires matured windows before becoming trainable.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     learner = _learner(tmp_path)
     client = _Client("veh_0001", "vehicle", "N", True)
 
@@ -54,6 +83,14 @@ def test_vehicle_requires_matured_windows_before_becoming_trainable(tmp_path):
 
 
 def test_live_schedule_rejects_misaligned_simulation_report_steps(tmp_path):
+    """Checks that live schedule rejects misaligned simulation report steps.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     learner = LiveFederation(ROOT / "configs" / "learning.yaml")
 
     with pytest.raises(live.LiveFederationError, match="align with report steps"):
@@ -70,6 +107,14 @@ def test_live_schedule_rejects_misaligned_simulation_report_steps(tmp_path):
 
 
 def test_live_round_respects_client_cap_and_reserves_rsu_slots(tmp_path):
+    """Checks that live round respects client cap and reserves rsu slots.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     learner = _learner(tmp_path)
     learner.max_clients = 6
     clients = [
@@ -96,6 +141,15 @@ def test_live_round_respects_client_cap_and_reserves_rsu_slots(tmp_path):
 
 
 def test_labels_wait_until_maturity_and_departed_vehicle_is_not_trained(tmp_path, monkeypatch):
+    """Checks that labels wait until maturity and departed vehicle is not trained.
+
+    Args:
+        tmp_path: Value used by this function.
+        monkeypatch: Value used by this function.
+
+    Returns:
+        None.
+    """
     learner = _learner(tmp_path)
     client = _Client("veh_0001", "vehicle", "N", True)
     learner.clients[client.client_id] = client

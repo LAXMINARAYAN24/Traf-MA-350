@@ -92,6 +92,16 @@ class FeatureContext:
 
     @classmethod
     def from_run(cls, config: dict, topology: dict, approach: str) -> "FeatureContext":
+        """Handles from run for the values provided.
+
+        Args:
+            config: Value used by this function.
+            topology: Value used by this function.
+            approach: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         if approach not in APPROACHES:
             raise FeatureError(f"unknown approach: {approach!r}")
         try:
@@ -137,6 +147,16 @@ class FeatureWindow:
 
 
 def _read_number(view: dict, key: str, *, required: bool = False) -> Optional[float]:
+    """Handles  read number for the values provided.
+
+    Args:
+        view: Value used by this function.
+        key: Value used by this function.
+        required: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     unavailable = set(view.get("unavailable", []))
     value = view.get(key)
     if key in unavailable and value is not None:
@@ -153,6 +173,18 @@ def _read_number(view: dict, key: str, *, required: bool = False) -> Optional[fl
 
 
 def _bounded(value: float, key: str, lower: float, upper: float, tolerance: float = 1e-3) -> float:
+    """Handles  bounded for the values provided.
+
+    Args:
+        value: Value used by this function.
+        key: Value used by this function.
+        lower: Value used by this function.
+        upper: Value used by this function.
+        tolerance: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     if value < lower - tolerance or value > upper + tolerance:
         raise FeatureError(f"{key}={value} is outside [{lower}, {upper}]")
     return min(max(value, lower), upper)
@@ -256,6 +288,14 @@ def adapt_observation(view: dict, client_type: str, context: FeatureContext) -> 
 
 
 def _jsonl(path: Path) -> Iterable[dict]:
+    """Handles  jsonl for the values provided.
+
+    Args:
+        path: Value used by this function.
+
+    Returns:
+        None.
+    """
     with path.open(encoding="utf-8") as source:
         for line_number, line in enumerate(source, 1):
             try:
@@ -267,6 +307,18 @@ def _jsonl(path: Path) -> Iterable[dict]:
 def _target_windows(
     run_dir: Path, run_id: str, split: str, requested_split: Optional[str], horizon_s: float
 ):
+    """Handles  target windows for the values provided.
+
+    Args:
+        run_dir: Value used by this function.
+        run_id: Value used by this function.
+        split: Value used by this function.
+        requested_split: Value used by this function.
+        horizon_s: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     by_client = defaultdict(dict)
     for window in _jsonl(run_dir / "windows.jsonl"):
         if requested_split is not None and split != requested_split:
@@ -389,6 +441,26 @@ def iter_feature_windows(
 
 def _make_window(dataset_id, run_id, split, run_meta, cid, ctype, approach, end_t, zone_m,
                  history, label, current_queue_m, thresholds):
+    """Handles  make window for the values provided.
+
+    Args:
+        dataset_id: Value used by this function.
+        run_id: Value used by this function.
+        split: Value used by this function.
+        run_meta: Value used by this function.
+        cid: Value used by this function.
+        ctype: Value used by this function.
+        approach: Value used by this function.
+        end_t: Value used by this function.
+        zone_m: Value used by this function.
+        history: Value used by this function.
+        label: Value used by this function.
+        current_queue_m: Value used by this function.
+        thresholds: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     queue_m = float(label["queue_m"])
     congestion_class = int(label["cls"])
     if not math.isfinite(queue_m) or queue_m < 0 or queue_m > zone_m + 1e-3:

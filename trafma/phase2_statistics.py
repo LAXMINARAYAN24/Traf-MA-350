@@ -23,6 +23,14 @@ class StatisticsError(ValueError):
 
 
 def _sha256(path: Path) -> str:
+    """Handles  sha256 for the values provided.
+
+    Args:
+        path: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     digest = hashlib.sha256()
     with path.open("rb") as file:
         for block in iter(lambda: file.read(1024 * 1024), b""):
@@ -31,6 +39,14 @@ def _sha256(path: Path) -> str:
 
 
 def _experiment_key(manifest: dict) -> str:
+    """Handles  experiment key for the values provided.
+
+    Args:
+        manifest: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     method = manifest.get("method")
     if method == "central_pooled_offline_gru":
         return "central_gru"
@@ -46,6 +62,14 @@ def _experiment_key(manifest: dict) -> str:
 
 
 def _prediction_rows(path: Path) -> dict[tuple[str, str, float], dict]:
+    """Handles  prediction rows for the values provided.
+
+    Args:
+        path: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     rows = {}
     with path.open(newline="", encoding="utf-8") as file:
         for row in csv.DictReader(file):
@@ -61,6 +85,15 @@ def _prediction_rows(path: Path) -> dict[tuple[str, str, float], dict]:
 
 
 def _metrics_from_rows(rows: list[dict], method: str) -> dict:
+    """Handles  metrics from rows for the values provided.
+
+    Args:
+        rows: Value used by this function.
+        method: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     accumulator = _Metrics()
     for row in rows:
         if method == "signal_aware_ridge":
@@ -79,6 +112,15 @@ def _metrics_from_rows(rows: list[dict], method: str) -> dict:
 
 
 def _percentile(sorted_values: list[float], percentile: float) -> float:
+    """Handles  percentile for the values provided.
+
+    Args:
+        sorted_values: Value used by this function.
+        percentile: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     position = (len(sorted_values) - 1) * percentile
     lower = math.floor(position)
     upper = math.ceil(position)
@@ -89,6 +131,16 @@ def _percentile(sorted_values: list[float], percentile: float) -> float:
 
 
 def _bootstrap_mean(values: list[float], rng: random.Random, replicates: int) -> dict:
+    """Handles  bootstrap mean for the values provided.
+
+    Args:
+        values: Value used by this function.
+        rng: Value used by this function.
+        replicates: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     if not values:
         return {"mean": None, "ci95_low": None, "ci95_high": None, "runs": 0}
     draws = sorted(
@@ -105,6 +157,17 @@ def _bootstrap_mean(values: list[float], rng: random.Random, replicates: int) ->
 
 def _paired_bootstrap(left: list[float], right: list[float],
                       rng: random.Random, replicates: int) -> dict:
+    """Handles  paired bootstrap for the values provided.
+
+    Args:
+        left: Value used by this function.
+        right: Value used by this function.
+        rng: Value used by this function.
+        replicates: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     if len(left) != len(right) or not left:
         raise StatisticsError("paired bootstrap requires matching nonempty run-level values")
     differences = [a - b for a, b in zip(left, right)]
@@ -126,6 +189,15 @@ def _paired_bootstrap(left: list[float], right: list[float],
 
 
 def _read_ridge_rows(path: Path, keys: set[tuple]) -> dict[tuple, dict]:
+    """Handles  read ridge rows for the values provided.
+
+    Args:
+        path: Value used by this function.
+        keys: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     matched = {}
     with path.open(newline="", encoding="utf-8") as file:
         for row in csv.DictReader(file):

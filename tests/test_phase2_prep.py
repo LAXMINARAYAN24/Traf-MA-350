@@ -10,15 +10,45 @@ from trafma.world import VehicleState
 
 
 def vs(vid, edge, pos, speed=0.0, accel=0.0, waiting=0.0):
+    """Handles vs for the values provided.
+
+    Args:
+        vid: Value used by this function.
+        edge: Value used by this function.
+        pos: Value used by this function.
+        speed: Value used by this function.
+        accel: Value used by this function.
+        waiting: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return VehicleState(vid, edge, pos, speed, accel, waiting, 0.0, 0.0, 5.0)
 
 
 def L(topo, a):
+    """Handles l for the values provided.
+
+    Args:
+        topo: Value used by this function.
+        a: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return topo.approaches[a].in_len
 
 
 # ------------------------------------------------------------------ schema / version (no SUMO needed)
 def test_schema_version_bumped_and_old_messages_still_valid(cfg):
+    """Checks that schema version bumped and old messages still valid.
+
+    Args:
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     assert MSG_VERSION == "1.1"
     rsu = RsuAgent("N", cfg)
     d = rsu.summarise({"approach": "N"}, 1.0).to_dict()
@@ -28,12 +58,22 @@ def test_schema_version_bumped_and_old_messages_still_valid(cfg):
 
 
 def test_new_fields_are_part_of_the_payload_contract():
+    """Checks that new fields are part of the payload contract.
+
+    Returns:
+        None.
+    """
     assert {"mean_accel_mps2", "mean_dist_to_stop_m"} <= set(PAYLOAD_FIELDS[RSU_SUMMARY])
     assert "signal_remaining_s" in PAYLOAD_FIELDS[VEHICLE_REPORT]
     assert "signal_remaining_s" in VEHICLE_MASKED
 
 
 def test_signal_broadcast_config_default_and_validation():
+    """Checks that signal broadcast config default and validation.
+
+    Returns:
+        None.
+    """
     assert load_config().agents.signal_broadcast is False
     assert load_config(overrides={"agents": {"signal_broadcast": True}}).agents.signal_broadcast is True
     for bad in ("yes", 1, None):
@@ -43,6 +83,15 @@ def test_signal_broadcast_config_default_and_validation():
 
 # ------------------------------------------------------------------ RSU mean accel / distance
 def test_rsu_mean_accel_and_distance_over_zone_vehicles_only(topo, cfg):
+    """Checks that rsu mean accel and distance over zone vehicles only.
+
+    Args:
+        topo: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     n = L(topo, "N")
     w = world([vs("a", "N_in", n - 20.0, accel=1.0),
                vs("b", "N_in", n - 40.0, accel=-2.0),
@@ -56,17 +105,44 @@ def test_rsu_mean_accel_and_distance_over_zone_vehicles_only(topo, cfg):
 
 
 def test_rsu_new_fields_unavailable_not_zero_when_zone_empty(topo, cfg):
+    """Checks that rsu new fields unavailable not zero when zone empty.
+
+    Args:
+        topo: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     v = rsu_view(world([], topo), topo, "N", cfg)
     assert v["mean_accel_mps2"] is None and v["mean_dist_to_stop_m"] is None
     assert {"mean_accel_mps2", "mean_dist_to_stop_m"} <= set(v["unavailable"])
 
 
 def test_measured_zero_accel_is_a_value_not_unavailable(topo, cfg):
+    """Checks that measured zero accel is a value not unavailable.
+
+    Args:
+        topo: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     v = rsu_view(world([vs("a", "N_in", L(topo, "N") - 10.0, accel=0.0)], topo), topo, "N", cfg)
     assert v["mean_accel_mps2"] == 0.0 and "mean_accel_mps2" not in v["unavailable"]
 
 
 def test_rsu_summary_with_new_fields_validates(topo, cfg):
+    """Checks that rsu summary with new fields validates.
+
+    Args:
+        topo: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     for vehicles in ([], [vs("a", "N_in", L(topo, "N") - 25.0, 3.0, 0.5)]):
         view = rsu_view(world(vehicles, topo), topo, "N", cfg)
         view.pop("_detected")
@@ -77,6 +153,15 @@ def test_rsu_summary_with_new_fields_validates(topo, cfg):
 
 # ------------------------------------------------------------------ signal broadcast to vehicles
 def test_default_vehicle_never_sees_the_timer(topo, cfg):
+    """Checks that default vehicle never sees the timer.
+
+    Args:
+        topo: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     near = vehicle_view(world([vs("me", "N_in", L(topo, "N") - 50)], topo), topo, "me", "N", cfg)
     far = vehicle_view(world([vs("me", "N_in", L(topo, "N") - 200)], topo), topo, "me", "N", cfg)
     assert near["signal_state"] == "G" and near["signal_remaining_s"] is None
@@ -86,6 +171,14 @@ def test_default_vehicle_never_sees_the_timer(topo, cfg):
 
 
 def test_broadcast_gives_state_and_timer_anywhere_on_the_approach(topo):
+    """Checks that broadcast gives state and timer anywhere on the approach.
+
+    Args:
+        topo: Value used by this function.
+
+    Returns:
+        None.
+    """
     cfg = load_config(overrides={"agents": {"signal_broadcast": True}})
     w = world([vs("me", "N_in", L(topo, "N") - 200)], topo, phase_index=0, remaining=10.0)
     v = vehicle_view(w, topo, "me", "N", cfg)
@@ -99,12 +192,30 @@ def test_broadcast_gives_state_and_timer_anywhere_on_the_approach(topo):
 
 @pytest.mark.parametrize("edge,scope", [("S_out", "out_of_coverage"), (":C_3", "in_junction")])
 def test_broadcast_does_not_extend_coverage_beyond_the_incoming_road(topo, edge, scope):
+    """Checks that broadcast does not extend coverage beyond the incoming road.
+
+    Args:
+        topo: Value used by this function.
+        edge: Value used by this function.
+        scope: Value used by this function.
+
+    Returns:
+        None.
+    """
     cfg = load_config(overrides={"agents": {"signal_broadcast": True}})
     v = vehicle_view(world([vs("me", edge, 5.0, 4.0)], topo), topo, "me", "N", cfg)
     assert v["scope"] == scope and v["signal_state"] is None and v["signal_remaining_s"] is None
 
 
 def test_broadcast_does_not_change_other_vehicle_fields(topo):
+    """Checks that broadcast does not change other vehicle fields.
+
+    Args:
+        topo: Value used by this function.
+
+    Returns:
+        None.
+    """
     p = L(topo, "N") - 80
     w = world([vs("me", "N_in", p, 5.0), vs("ahead", "N_in", p + 30), vs("behind", "N_in", p - 40, 6.0)], topo)
     off = vehicle_view(w, topo, "me", "N", load_config())
@@ -116,10 +227,27 @@ def test_broadcast_does_not_change_other_vehicle_fields(topo):
 # ------------------------------------------------------------------ whole-simulation guarantees
 @needs_sumo
 def test_sensor_changes_never_alter_traffic_and_logs_carry_new_fields(tmp_path):
+    """Checks that sensor changes never alter traffic and logs carry new fields.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     import json
     from trafma.runner import run_simulation
 
     def go(rid, bcast):
+        """Handles go for the values provided.
+
+        Args:
+            rid: Value used by this function.
+            bcast: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         ov = {"run": {"output_dir": str(tmp_path), "run_id": rid, "duration_s": 250, "vehicles": 30},
               "agents": {"signal_broadcast": bcast}}
         return run_simulation(load_config(overrides=ov), quiet=True)

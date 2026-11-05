@@ -20,6 +20,14 @@ class ReportError(ValueError):
 
 
 def _sha256(path: Path) -> str:
+    """Handles  sha256 for the values provided.
+
+    Args:
+        path: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     digest = hashlib.sha256()
     with path.open("rb") as file:
         for block in iter(lambda: file.read(1024 * 1024), b""):
@@ -28,15 +36,39 @@ def _sha256(path: Path) -> str:
 
 
 def _load_test_rows(path: Path) -> list[dict]:
+    """Handles  load test rows for the values provided.
+
+    Args:
+        path: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     with path.open(newline="", encoding="utf-8") as file:
         return [row for row in csv.DictReader(file) if row["split"] == "test"]
 
 
 def _row_key(row: dict) -> tuple[str, str, float]:
+    """Handles  row key for the values provided.
+
+    Args:
+        row: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return row["run_id"], row["client_id"], round(float(row["end_t"]), 6)
 
 
 def _experiment_label(manifest: dict) -> str:
+    """Handles  experiment label for the values provided.
+
+    Args:
+        manifest: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     if manifest.get("evaluation_mode") == "representative_stratified_local_only":
         return "Independent local-only GRU (representative stratified)"
     if manifest.get("evaluation_mode") == "exhaustive_local_only":
@@ -57,6 +89,16 @@ def _experiment_label(manifest: dict) -> str:
 
 
 def _paired_statistics_section(summary: dict, dataset_id: str, test_runs: set[str]) -> tuple[list[str], str]:
+    """Handles  paired statistics section for the values provided.
+
+    Args:
+        summary: Value used by this function.
+        dataset_id: Value used by this function.
+        test_runs: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     if summary.get("dataset_id") != dataset_id:
         raise ReportError("paired statistics dataset does not match the report dataset")
     if set(summary.get("test_run_ids", [])) != test_runs:
@@ -133,6 +175,15 @@ def _paired_statistics_section(summary: dict, dataset_id: str, test_runs: set[st
 
 
 def _matched_baseline_metrics(predictions_path: Path, test_keys: set[tuple]) -> dict:
+    """Handles  matched baseline metrics for the values provided.
+
+    Args:
+        predictions_path: Value used by this function.
+        test_keys: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     ridge = _Metrics()
     persistence = _Metrics()
     majority = _Metrics()
@@ -169,6 +220,15 @@ def _matched_baseline_metrics(predictions_path: Path, test_keys: set[tuple]) -> 
 
 
 def _jensen_shannon(left: list[int], right: list[int]) -> float:
+    """Handles  jensen shannon for the values provided.
+
+    Args:
+        left: Value used by this function.
+        right: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     left_total = sum(left)
     right_total = sum(right)
     if not left_total or not right_total:
@@ -185,6 +245,14 @@ def _jensen_shannon(left: list[int], right: list[int]) -> float:
 
 
 def _training_label_skew(dataset_manifest: dict) -> dict:
+    """Handles  training label skew for the values provided.
+
+    Args:
+        dataset_manifest: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     clients = [
         client for client in dataset_manifest.get("clients", {}).values()
         if client.get("split") == "train"
@@ -211,6 +279,15 @@ def _training_label_skew(dataset_manifest: dict) -> dict:
 
 
 def _percentile(values: list[float], percentile: float) -> float:
+    """Handles  percentile for the values provided.
+
+    Args:
+        values: Value used by this function.
+        percentile: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     ordered = sorted(values)
     position = (len(ordered) - 1) * percentile
     lower, upper = math.floor(position), math.ceil(position)
@@ -221,6 +298,14 @@ def _percentile(values: list[float], percentile: float) -> float:
 
 
 def _client_distribution_summary(clients: list[dict]) -> dict:
+    """Handles  client distribution summary for the values provided.
+
+    Args:
+        clients: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     windows = [float(client["windows"]) for client in clients]
     divergences = [float(client["jsd_bits"]) for client in clients]
     if not clients:
@@ -244,10 +329,27 @@ def _client_distribution_summary(clients: list[dict]) -> dict:
 
 
 def _manifest_histogram(histogram: dict) -> list[int]:
+    """Handles  manifest histogram for the values provided.
+
+    Args:
+        histogram: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return [int(histogram.get(str(index), histogram.get(index, 0))) for index in range(3)]
 
 
 def _client_label_distribution_analysis(dataset_manifest: dict, experiments: list[dict]) -> dict:
+    """Handles  client label distribution analysis for the values provided.
+
+    Args:
+        dataset_manifest: Value used by this function.
+        experiments: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     dataset_clients = dataset_manifest.get("clients", {})
     eligible = [
         (client_id, client) for client_id, client in dataset_clients.items()
@@ -380,6 +482,18 @@ def _client_label_distribution_analysis(dataset_manifest: dict, experiments: lis
 
 def _write_plots(dataset_dir: Path, experiments: list[dict], output_dir: Path,
                  matched_baseline: dict, label_skew: dict) -> list[str]:
+    """Handles  write plots for the values provided.
+
+    Args:
+        dataset_dir: Value used by this function.
+        experiments: Value used by this function.
+        output_dir: Value used by this function.
+        matched_baseline: Value used by this function.
+        label_skew: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     try:
         import matplotlib
         matplotlib.use("Agg")

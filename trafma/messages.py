@@ -43,18 +43,49 @@ class Envelope:
     reserved: dict = field(default_factory=lambda: dict(RESERVED))
 
     def to_dict(self) -> dict:
+        """Handles to dict for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         return asdict(self)
 
     @staticmethod
     def from_dict(d: dict) -> "Envelope":
+        """Handles from dict for the values provided.
+
+        Args:
+            d: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         return Envelope(**d)
 
 
 def make_msg_id(origin: str, seq: int) -> str:
+    """Builds or creates make msg id for the values provided.
+
+    Args:
+        origin: Value used by this function.
+        seq: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return f"{origin}#{seq}"
 
 
 def build_payload(kind: str, view: dict) -> dict:
+    """Builds or creates build payload for the values provided.
+
+    Args:
+        kind: Value used by this function.
+        view: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     keys = PAYLOAD_FIELDS[kind]
     p = {k: view.get(k) for k in keys}
     p["unavailable"] = sorted(k for k in keys if p[k] is None)
@@ -62,6 +93,14 @@ def build_payload(kind: str, view: dict) -> dict:
 
 
 def _finite(x) -> bool:
+    """Handles  finite for the values provided.
+
+    Args:
+        x: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x)
 
 
@@ -121,4 +160,12 @@ def validate(d) -> list:
 
 
 def canonical(obj) -> str:
+    """Handles canonical for the values provided.
+
+    Args:
+        obj: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=True)

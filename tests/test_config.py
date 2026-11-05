@@ -1,29 +1,62 @@
+"""Test helpers for test config."""
+
 import pytest
 from trafma.config import ConfigError, load_config, parse_set_overrides, config_from_dict
 
 
 def test_defaults_valid():
+    """Checks that defaults valid.
+
+    Returns:
+        None.
+    """
     c = load_config()
     assert c.run.vehicles == 20 and c.agents.rsu_zone_m == 150 and c.agents.vehicle_radius_m == 100
 
 
 @pytest.mark.parametrize("n", [-1, 1.5, "20", True, None])
 def test_invalid_n_rejected(n):
+    """Checks that invalid n rejected.
+
+    Args:
+        n: Value used by this function.
+
+    Returns:
+        None.
+    """
     with pytest.raises(ConfigError):
         load_config(overrides={"run": {"vehicles": n}})
 
 
 def test_n_cap():
+    """Checks that n cap.
+
+    Returns:
+        None.
+    """
     with pytest.raises(ConfigError):
         load_config(overrides={"run": {"vehicles": 10_000}})
 
 
 def test_unknown_key_rejected():
+    """Checks that unknown key rejected.
+
+    Returns:
+        None.
+    """
     with pytest.raises(ConfigError, match="unknown key"):
         load_config(overrides={"agents": {"camera_zone_m": 100}})
 
 
 def test_malformed_yaml(tmp_path):
+    """Checks that malformed yaml.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     p = tmp_path / "bad.yaml"
     p.write_text("run: [unclosed")
     with pytest.raises(ConfigError, match="malformed YAML"):
@@ -31,11 +64,24 @@ def test_malformed_yaml(tmp_path):
 
 
 def test_missing_file():
+    """Checks that missing file.
+
+    Returns:
+        None.
+    """
     with pytest.raises(ConfigError, match="not found"):
         load_config("nope.yaml")
 
 
 def test_not_a_mapping(tmp_path):
+    """Checks that not a mapping.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     p = tmp_path / "list.yaml"
     p.write_text("- a\n- b\n")
     with pytest.raises(ConfigError):
@@ -55,11 +101,24 @@ def test_not_a_mapping(tmp_path):
     {"network": {"lanes_per_direction": 2}},
 ])
 def test_malformed_values_rejected(ov):
+    """Checks that malformed values rejected.
+
+    Args:
+        ov: Value used by this function.
+
+    Returns:
+        None.
+    """
     with pytest.raises(ConfigError):
         load_config(overrides=ov)
 
 
 def test_set_override_parsing():
+    """Checks that set override parsing.
+
+    Returns:
+        None.
+    """
     assert parse_set_overrides(["agents.rsu_zone_m=120", "run.gui=true"]) == {
         "agents": {"rsu_zone_m": 120}, "run": {"gui": True}}
     with pytest.raises(ConfigError):

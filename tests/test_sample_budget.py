@@ -1,3 +1,5 @@
+"""Test helpers for test sample budget."""
+
 import json
 
 import pytest
@@ -6,6 +8,14 @@ from trafma.sample_budget import SampleBudgetError, build_budget, format_markdow
 
 
 def _manifest(tmp_path):
+    """Handles  manifest for the values provided.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     runs = {
         "a_s1": {"split": "train", "scenario": "a", "steps": 900, "vehicles_scheduled": 50, "vehicles_departed": 50,
                  "vehicles_arrived": 40, "vehicles_unfinished": 10},
@@ -24,6 +34,14 @@ def _manifest(tmp_path):
 
 
 def test_budget_counts_come_from_the_manifest(tmp_path):
+    """Checks that budget counts come from the manifest.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     _manifest(tmp_path)
     b = build_budget(tmp_path)
     assert b["simulation"]["train"]["vehicles_scheduled"] == 50 and b["simulation"]["test"]["runs"] == 0
@@ -34,6 +52,14 @@ def test_budget_counts_come_from_the_manifest(tmp_path):
 
 
 def test_markdown_tables_are_well_formed(tmp_path):
+    """Checks that markdown tables are well formed.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     _manifest(tmp_path)
     text = format_markdown(build_budget(tmp_path))
     lines = text.split("\n")
@@ -44,6 +70,14 @@ def test_markdown_tables_are_well_formed(tmp_path):
 
 
 def test_writes_markdown_and_json_and_rejects_missing_dataset(tmp_path):
+    """Checks that writes markdown and json and rejects missing dataset.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     _manifest(tmp_path)
     out = run_sample_budget(tmp_path)
     assert out.is_file() and out.with_suffix(".json").is_file()

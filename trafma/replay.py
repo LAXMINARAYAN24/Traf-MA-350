@@ -1,4 +1,6 @@
-"""Replay from saved logs (no SUMO needed) and optional deterministic re-run verification."""
+"""**SUMO/** This file is part of the SUMO related functionality. It replays records saved from SUMO runs.
+
+Replay from saved logs (no SUMO needed) and optional deterministic re-run verification."""
 from __future__ import annotations
 
 import json
@@ -9,6 +11,19 @@ from .gate import load_manifest, reproduce, _jl
 
 
 def replay_run(run_dir, t_from=0.0, t_to=None, every=10.0, verify=False, out=print):
+    """Runs replay run for the values provided.
+
+    Args:
+        run_dir: Value used by this function.
+        t_from: Value used by this function.
+        t_to: Value used by this function.
+        every: Value used by this function.
+        verify: Value used by this function.
+        out: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     run_dir = Path(run_dir)
     m = load_manifest(run_dir)
     out(f"Replay of {m['run_id']}  (seed {m['seed']}, N={m['vehicles']}, status {m['status']})")

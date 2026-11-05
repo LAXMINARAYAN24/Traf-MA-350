@@ -46,6 +46,14 @@ class AggregationResult:
 
 
 def model_hash(tensors: Mapping[str, np.ndarray]) -> str:
+    """Finds or calculates model hash for the values provided.
+
+    Args:
+        tensors: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     digest = hashlib.sha256()
     for name in sorted(tensors):
         tensor = np.ascontiguousarray(tensors[name])
@@ -58,6 +66,14 @@ def model_hash(tensors: Mapping[str, np.ndarray]) -> str:
 
 def _update_size(update: ModelUpdate) -> int:
     # JSON serialization is transparent and reproducible; it transmits weights and metadata only.
+    """Handles  update size for the values provided.
+
+    Args:
+        update: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     payload = {
         "client_id": update.client_id,
         "client_type": update.client_type,
@@ -79,10 +95,26 @@ def _update_size(update: ModelUpdate) -> int:
 
 
 def _signature(tensors: Mapping[str, np.ndarray]) -> dict[str, Tuple[Tuple[int, ...], str]]:
+    """Handles  signature for the values provided.
+
+    Args:
+        tensors: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return {name: (tuple(value.shape), str(value.dtype)) for name, value in tensors.items()}
 
 
 def _validate_metadata(update: ModelUpdate) -> Optional[str]:
+    """Handles  validate metadata for the values provided.
+
+    Args:
+        update: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     if not isinstance(update.training_metadata, Mapping):
         return "invalid_training_metadata"
     permitted = {"epochs", "training_loss", "training_time_s"}
@@ -105,6 +137,19 @@ def _validate_update(
     expected_signature: dict,
     deadline_s: float,
 ) -> Optional[str]:
+    """Handles  validate update for the values provided.
+
+    Args:
+        update: Value used by this function.
+        round_id: Value used by this function.
+        model_version: Value used by this function.
+        base_hash: Value used by this function.
+        expected_signature: Value used by this function.
+        deadline_s: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     if update.round_id != round_id:
         return "wrong_round"
     if not math.isfinite(update.received_at_s) or update.received_at_s < 0:
@@ -129,6 +174,14 @@ def _validate_update(
 
 
 def _weighted_average(updates: Iterable[ModelUpdate]) -> tuple[TensorMap, int]:
+    """Handles  weighted average for the values provided.
+
+    Args:
+        updates: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     accepted = list(updates)
     sample_mass = sum(update.sample_count for update in accepted)
     if not sample_mass:

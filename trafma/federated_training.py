@@ -38,6 +38,14 @@ from .training import (
 
 
 def _client_tensor_map(model) -> dict[str, np.ndarray]:
+    """Handles  client tensor map for the values provided.
+
+    Args:
+        model: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return {
         name: tensor.detach().cpu().numpy().copy()
         for name, tensor in model.state_dict().items()
@@ -46,6 +54,18 @@ def _client_tensor_map(model) -> dict[str, np.ndarray]:
 
 def _select_clients(manifest: dict, max_clients: int, minimum_windows: int, seed: int,
                     client_types: Optional[set[str]] = None) -> list[str]:
+    """Handles  select clients for the values provided.
+
+    Args:
+        manifest: Value used by this function.
+        max_clients: Value used by this function.
+        minimum_windows: Value used by this function.
+        seed: Value used by this function.
+        client_types: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     eligible = sorted(
         client_id for client_id, client in manifest.get("clients", {}).items()
         if client.get("split") == "train"
@@ -62,6 +82,17 @@ def _select_clients(manifest: dict, max_clients: int, minimum_windows: int, seed
 
 def _select_hierarchical_vehicles(manifest: dict, max_clients: int, minimum_windows: int,
                                  seed: int) -> list[str]:
+    """Handles  select hierarchical vehicles for the values provided.
+
+    Args:
+        manifest: Value used by this function.
+        max_clients: Value used by this function.
+        minimum_windows: Value used by this function.
+        seed: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     eligible_by_approach = {approach: [] for approach in ("N", "E", "S", "W")}
     for client_id, client in manifest.get("clients", {}).items():
         if (client.get("split") == "train" and client.get("trainable")
@@ -91,6 +122,20 @@ def _collect_client_windows(dataset_dir: Path, source_ids: list[str], destinatio
                             source_to_destination: dict[str, str], maximum: Optional[int],
                             seed: int, maximum_by_client: Optional[dict[str, int]] = None
                             ) -> tuple[dict[str, list[FeatureWindow]], dict[str, int]]:
+    """Handles  collect client windows for the values provided.
+
+    Args:
+        dataset_dir: Value used by this function.
+        source_ids: Value used by this function.
+        destination_ids: Value used by this function.
+        source_to_destination: Value used by this function.
+        maximum: Value used by this function.
+        seed: Value used by this function.
+        maximum_by_client: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     selected = {client_id: [] for client_id in destination_ids}
     seen = {client_id: 0 for client_id in destination_ids}
     rngs = {
@@ -116,6 +161,16 @@ def _collect_client_windows(dataset_dir: Path, source_ids: list[str], destinatio
 
 def _partition_iid_windows(samples: list[FeatureWindow], client_count: int,
                            seed: int) -> dict[str, list[FeatureWindow]]:
+    """Handles  partition iid windows for the values provided.
+
+    Args:
+        samples: Value used by this function.
+        client_count: Value used by this function.
+        seed: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     partitions = {f"iid_client_{index:03d}": [] for index in range(client_count)}
     by_class = {label: [] for label in range(3)}
     rng = random.Random(seed)
@@ -130,6 +185,18 @@ def _partition_iid_windows(samples: list[FeatureWindow], client_count: int,
 
 def _client_training(model_config: dict, base_state: dict, samples: list[FeatureWindow],
                      training: dict, seed: int) -> tuple[dict[str, np.ndarray], float, float]:
+    """Handles  client training for the values provided.
+
+    Args:
+        model_config: Value used by this function.
+        base_state: Value used by this function.
+        samples: Value used by this function.
+        training: Value used by this function.
+        seed: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     _seed_everything(seed, bool(training["deterministic"]))
     model = GRUPredictor(**model_config)
     model.load_state_dict(base_state, strict=True)
@@ -153,6 +220,18 @@ def _client_training(model_config: dict, base_state: dict, samples: list[Feature
 
 def _write_predictions(path: Path, model, samples: list[FeatureWindow], batch_size: int,
                        split: str) -> None:
+    """Handles  write predictions for the values provided.
+
+    Args:
+        path: Value used by this function.
+        model: Value used by this function.
+        samples: Value used by this function.
+        batch_size: Value used by this function.
+        split: Value used by this function.
+
+    Returns:
+        None.
+    """
     queues, classes, _latency = _predict(model, samples, batch_size)
     fields = [
         "split", "run_id", "scenario", "client_id", "client_type", "approach", "end_t",
@@ -365,6 +444,14 @@ def run_fedavg_training(config_path: Union[str, Path],
     if len(client_ids) < 2:
         raise TrainingError("fewer than two selected clients produced the minimum valid windows")
     def expected_client_budget(client_id: str) -> int:
+        """Handles expected client budget for the values provided.
+
+        Args:
+            client_id: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         if (client_meta_by_id[client_id]["type"] == "rsu"
                 and max_rsu_windows_per_group is not None):
             return max_rsu_windows_per_group

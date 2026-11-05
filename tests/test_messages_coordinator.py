@@ -1,3 +1,5 @@
+"""Test helpers for test messages coordinator."""
+
 import copy
 
 import pytest
@@ -20,10 +22,23 @@ RVIEW = {"approach": "N", "zone_m": 150.0, "coverage_m": 150.0, "vehicle_count":
 
 @pytest.fixture
 def cfg():
+    """Handles cfg for the values provided.
+
+    Returns:
+        The result produced by this function.
+    """
     return load_config()
 
 
 def setup(cfg):
+    """Sets or resolves setup for the values provided.
+
+    Args:
+        cfg: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     reg = AgentRegistry(cfg)
     reg.on_depart("veh_0", "N", 1.0)
     rsu = reg.rsus["N"]
@@ -31,6 +46,17 @@ def setup(cfg):
 
 
 def relay(rsu, v, now, coord):
+    """Handles relay for the values provided.
+
+    Args:
+        rsu: Value used by this function.
+        v: Value used by this function.
+        now: Value used by this function.
+        coord: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     env = v.report(VIEW, now).to_dict()
     ok, why = rsu.receive_from_child(env, now)
     b = rsu.flush_relay(now)
@@ -39,6 +65,14 @@ def relay(rsu, v, now, coord):
 
 # ------------------------------------------------------------------ validation
 def test_valid_messages(cfg):
+    """Checks that valid messages.
+
+    Args:
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     _, rsu, v, _ = setup(cfg)
     assert validate(v.report(VIEW, 1.0).to_dict()) == []
     assert validate(rsu.summarise(RVIEW, 1.0).to_dict()) == []
@@ -57,6 +91,16 @@ def test_valid_messages(cfg):
     (lambda d: d.update(evidence="direct"), "evidence"),
 ])
 def test_malformed_messages_rejected(cfg, mut, frag):
+    """Checks that malformed messages rejected.
+
+    Args:
+        cfg: Value used by this function.
+        mut: Value used by this function.
+        frag: Value used by this function.
+
+    Returns:
+        None.
+    """
     _, _, v, _ = setup(cfg)
     d = copy.deepcopy(v.report(VIEW, 1.0).to_dict())
     d["payload"]["unavailable"] = sorted(d["payload"]["unavailable"])
@@ -66,17 +110,38 @@ def test_malformed_messages_rejected(cfg, mut, frag):
 
 
 def test_validate_never_raises_on_garbage():
+    """Checks that validate never raises on garbage.
+
+    Returns:
+        None.
+    """
     for g in (None, 5, "x", [], {}, {"schema": 1}):
         assert validate(g)
 
 
 def test_reserved_fields_explicitly_unavailable(cfg):
+    """Checks that reserved fields explicitly unavailable.
+
+    Args:
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     _, rsu, _, _ = setup(cfg)
     assert rsu.summarise(RVIEW, 1).reserved == {"trust": "unavailable", "signature": "unavailable"}
 
 
 # ------------------------------------------------------------------ RSU relay
 def test_rsu_rejects_duplicate_stale_and_foreign(cfg):
+    """Checks that rsu rejects duplicate stale and foreign.
+
+    Args:
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     reg, rsu, v, _ = setup(cfg)
     env = v.report(VIEW, 10.0).to_dict()
     assert rsu.receive_from_child(env, 10.0) == (True, "accepted")
@@ -94,6 +159,14 @@ def test_rsu_rejects_duplicate_stale_and_foreign(cfg):
 
 
 def test_relay_adds_parent_to_hop_path(cfg):
+    """Checks that relay adds parent to hop path.
+
+    Args:
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     _, rsu, v, _ = setup(cfg)
     _, ok, _, b = relay(rsu, v, 1.0, None)
     assert ok and b.payload["reports"][0]["hops"] == ["veh_0", "rsu_N"]
@@ -101,6 +174,14 @@ def test_relay_adds_parent_to_hop_path(cfg):
 
 # ------------------------------------------------------------------ coordinator
 def test_vehicle_to_coordinator_path_and_evidence_kinds(cfg):
+    """Checks that vehicle to coordinator path and evidence kinds.
+
+    Args:
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     _, rsu, v, co = setup(cfg)
     _, _, _, b = relay(rsu, v, 1.0, co)
     s = rsu.summarise(RVIEW, 1.0)
@@ -115,6 +196,14 @@ def test_vehicle_to_coordinator_path_and_evidence_kinds(cfg):
 
 
 def test_duplicate_bundle_not_double_counted(cfg):
+    """Checks that duplicate bundle not double counted.
+
+    Args:
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     _, rsu, v, co = setup(cfg)
     _, _, _, b = relay(rsu, v, 1.0, co)
     assert co.ingest(b.to_dict(), 1.0)[0][1] == "accepted"
@@ -123,6 +212,14 @@ def test_duplicate_bundle_not_double_counted(cfg):
 
 
 def test_stale_summary_rejected_and_marked(cfg):
+    """Checks that stale summary rejected and marked.
+
+    Args:
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     _, rsu, _, co = setup(cfg)
     s = rsu.summarise(RVIEW, 1.0).to_dict()
     assert co.ingest(s, 20.0)[0][2] == "stale"
@@ -133,6 +230,14 @@ def test_stale_summary_rejected_and_marked(cfg):
 
 
 def test_forged_provenance_rejected(cfg):
+    """Checks that forged provenance rejected.
+
+    Args:
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     _, rsu, v, co = setup(cfg)
     _, _, _, b = relay(rsu, v, 1.0, co)
     bd = copy.deepcopy(b.to_dict())
@@ -144,12 +249,28 @@ def test_forged_provenance_rejected(cfg):
 
 
 def test_rsu_summary_for_wrong_approach_rejected(cfg):
+    """Checks that rsu summary for wrong approach rejected.
+
+    Args:
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     _, rsu, _, co = setup(cfg)
     bad = rsu.summarise(dict(RVIEW, approach="E"), 1.0).to_dict()        # rsu_N claiming to be E
     assert co.ingest(bad, 1.0)[0][2].startswith("bad_provenance")
 
 
 def test_departed_vehicle_drops_from_live_view(cfg):
+    """Checks that departed vehicle drops from live view.
+
+    Args:
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     _, rsu, v, co = setup(cfg)
     _, _, _, b = relay(rsu, v, 1.0, co)
     co.ingest(b.to_dict(), 1.0)
@@ -158,6 +279,14 @@ def test_departed_vehicle_drops_from_live_view(cfg):
 
 
 def test_registry_rules(cfg):
+    """Checks that registry rules.
+
+    Args:
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     reg = AgentRegistry(cfg)
     assert sorted(reg.rsus) == sorted(APPROACHES) and len(reg.rsus) == 4
     reg.on_depart("a", "S", 1.0)
@@ -171,11 +300,21 @@ def test_registry_rules(cfg):
 
 # ------------------------------------------------------------------ channel
 def test_perfect_channel_default():
+    """Checks that perfect channel default.
+
+    Returns:
+        None.
+    """
     ch = Channel("x", LinkCfg(), 1)
     assert ch.send("m", 1.0) == ["queued"] and ch.deliver_due(1.0) == [("m", "orig")]
 
 
 def test_channel_delay_loss_dup_deterministic():
+    """Checks that channel delay loss dup deterministic.
+
+    Returns:
+        None.
+    """
     ch = Channel("x", LinkCfg(delay_s=2.0), 1)
     ch.send("m", 1.0)
     assert ch.deliver_due(2.0) == [] and ch.deliver_due(3.0) == [("m", "orig")]

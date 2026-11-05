@@ -28,6 +28,14 @@ class BaselineError(ValueError):
 
 
 def load_learning_config(path: Union[str, Path]) -> dict:
+    """Loads or reads load learning config for the values provided.
+
+    Args:
+        path: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     config_path = Path(path)
     if not config_path.is_file():
         raise BaselineError(f"learning config not found: {config_path}")
@@ -52,6 +60,14 @@ def load_learning_config(path: Union[str, Path]) -> dict:
 
 
 def _sha256_file(path: Path) -> str:
+    """Handles  sha256 file for the values provided.
+
+    Args:
+        path: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     digest = hashlib.sha256()
     with path.open("rb") as source:
         for chunk in iter(lambda: source.read(1024 * 1024), b""):
@@ -60,6 +76,14 @@ def _sha256_file(path: Path) -> str:
 
 
 def _package_version(package: str) -> Optional[str]:
+    """Handles  package version for the values provided.
+
+    Args:
+        package: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     try:
         return version(package)
     except PackageNotFoundError:
@@ -67,6 +91,11 @@ def _package_version(package: str) -> Optional[str]:
 
 
 def _repository_revision() -> dict:
+    """Handles  repository revision for the values provided.
+
+    Returns:
+        The result produced by this function.
+    """
     try:
         commit = subprocess.run(
             ["git", "rev-parse", "--verify", "HEAD"], capture_output=True, text=True, check=False
@@ -83,6 +112,16 @@ def _repository_revision() -> dict:
 
 
 def _fit_ridge(dataset_dir: Path, train_clients: set[str], alpha: float):
+    """Handles  fit ridge for the values provided.
+
+    Args:
+        dataset_dir: Value used by this function.
+        train_clients: Value used by this function.
+        alpha: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     import numpy as np
 
     dimension = 23  # 22 ordered input features plus an intercept.
@@ -110,12 +149,28 @@ def _fit_ridge(dataset_dir: Path, train_clients: set[str], alpha: float):
 
 class _Metrics:
     def __init__(self):
+        """Sets up this object using the values provided.
+
+        Returns:
+            None.
+        """
         self.n = 0
         self.abs_error = 0.0
         self.squared_error = 0.0
         self.confusion = [[0, 0, 0] for _ in range(3)]
 
     def add(self, true_queue: float, pred_queue: float, true_class: int, pred_class: int):
+        """Handles add for the values provided.
+
+        Args:
+            true_queue: Value used by this function.
+            pred_queue: Value used by this function.
+            true_class: Value used by this function.
+            pred_class: Value used by this function.
+
+        Returns:
+            None.
+        """
         error = pred_queue - true_queue
         self.n += 1
         self.abs_error += abs(error)
@@ -123,6 +178,11 @@ class _Metrics:
         self.confusion[true_class][pred_class] += 1
 
     def result(self) -> dict:
+        """Handles result for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         if self.n == 0:
             return {"n": 0, "mae_m": None, "rmse_m": None, "accuracy": None,
                     "macro_f1": None, "balanced_accuracy": None, "class_metrics": [],
@@ -154,6 +214,16 @@ class _Metrics:
 
 
 def _class_for(queue_m: float, zone_m: float, thresholds: list[float]) -> int:
+    """Handles  class for for the values provided.
+
+    Args:
+        queue_m: Value used by this function.
+        zone_m: Value used by this function.
+        thresholds: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     ratio = queue_m / zone_m
     if ratio < thresholds[0]:
         return 0
@@ -164,11 +234,32 @@ def _class_for(queue_m: float, zone_m: float, thresholds: list[float]) -> int:
 
 def _add_group(groups: dict, key: tuple, true_queue: float, pred_queue: float,
                true_class: int, pred_class: int):
+    """Handles  add group for the values provided.
+
+    Args:
+        groups: Value used by this function.
+        key: Value used by this function.
+        true_queue: Value used by this function.
+        pred_queue: Value used by this function.
+        true_class: Value used by this function.
+        pred_class: Value used by this function.
+
+    Returns:
+        None.
+    """
     accumulator = groups.setdefault(key, _Metrics())
     accumulator.add(true_queue, pred_queue, true_class, pred_class)
 
 
 def _mean_std(values: list[float]) -> dict:
+    """Handles  mean std for the values provided.
+
+    Args:
+        values: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     if not values:
         return {"mean": None, "std": None, "runs": 0}
     return {
@@ -180,6 +271,19 @@ def _mean_std(values: list[float]) -> dict:
 
 def _write_predictions(dataset_dir: Path, split: str, coefficients, thresholds: list[float],
                        majority_class: int, writer):
+    """Handles  write predictions for the values provided.
+
+    Args:
+        dataset_dir: Value used by this function.
+        split: Value used by this function.
+        coefficients: Value used by this function.
+        thresholds: Value used by this function.
+        majority_class: Value used by this function.
+        writer: Value used by this function.
+
+    Returns:
+        None.
+    """
     import numpy as np
 
     for sample in iter_feature_windows(dataset_dir, split=split):
@@ -255,6 +359,14 @@ def _metrics_from_predictions(predictions_path: Path) -> dict:
                            true_queue, persistence_prediction, true_class, persistence_class)
 
     def class_only(value):
+        """Finds or calculates class only for the values provided.
+
+        Args:
+            value: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         metrics_result = value.result()
         metrics_result.pop("mae_m")
         metrics_result.pop("rmse_m")

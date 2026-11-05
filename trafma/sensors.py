@@ -1,4 +1,6 @@
-"""P1.4 - Observation boundary. The ONLY functions that turn world truth into agent-visible data.
+"""**SUMO/** This file is part of the SUMO related functionality. It creates coverage-limited views of SUMO traffic.
+
+P1.4 - Observation boundary. The ONLY functions that turn world truth into agent-visible data.
 
 RSU view      : vehicles on its own incoming road within `rsu_zone_m` of the stop line, vehicles on
                 its own outgoing road within `rsu_outbound_zone_m`, and the signal head of its road.
@@ -20,6 +22,15 @@ from .world import WorldSnapshot, VehicleState
 
 # ------------------------------------------------------------------ signal helpers
 def approach_signal_char(state: str, link_indices: list) -> str:
+    """Finds or calculates approach signal char for the values provided.
+
+    Args:
+        state: Value used by this function.
+        link_indices: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     chars = {state[i] for i in link_indices}
     if chars & {"G", "g"}:
         return "G"
@@ -65,6 +76,17 @@ def queue_chain(items: list, cfg: Config):
 
 
 def zone_items(world: WorldSnapshot, topo: Topology, approach: str, zone_m: float):
+    """Finds or calculates zone items for the values provided.
+
+    Args:
+        world: Value used by this function.
+        topo: Value used by this function.
+        approach: Value used by this function.
+        zone_m: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     g = topo.approaches[approach]
     out = []
     for v in world.vehicles.values():
@@ -77,6 +99,17 @@ def zone_items(world: WorldSnapshot, topo: Topology, approach: str, zone_m: floa
 
 # ------------------------------------------------------------------ RSU
 def rsu_view(world: WorldSnapshot, topo: Topology, approach: str, cfg: Config) -> dict:
+    """Finds or calculates rsu view for the values provided.
+
+    Args:
+        world: Value used by this function.
+        topo: Value used by this function.
+        approach: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     a = cfg.agents
     g = topo.approaches[approach]
     zone = min(a.rsu_zone_m, g.in_len)
@@ -125,6 +158,16 @@ VEHICLE_MASKED = ["dist_to_stop_line_m", "signal_state", "signal_remaining_s", "
 
 
 def vehicle_scope(topo: Topology, edge_id: str, parent: str) -> str:
+    """Finds or calculates vehicle scope for the values provided.
+
+    Args:
+        topo: Value used by this function.
+        edge_id: Value used by this function.
+        parent: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     if edge_id == topo.approaches[parent].in_edge:
         return "incoming_local"
     if edge_id.startswith(":"):
@@ -133,6 +176,18 @@ def vehicle_scope(topo: Topology, edge_id: str, parent: str) -> str:
 
 
 def vehicle_view(world: WorldSnapshot, topo: Topology, vid: str, parent: str, cfg: Config) -> Optional[dict]:
+    """Finds or calculates vehicle view for the values provided.
+
+    Args:
+        world: Value used by this function.
+        topo: Value used by this function.
+        vid: Value used by this function.
+        parent: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     me = world.vehicles.get(vid)
     if me is None:
         return None

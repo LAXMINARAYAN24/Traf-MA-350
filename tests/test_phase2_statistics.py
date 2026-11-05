@@ -1,3 +1,5 @@
+"""Test helpers for test phase2 statistics."""
+
 import csv
 import json
 
@@ -5,6 +7,16 @@ from trafma.phase2_statistics import run_paired_statistics
 
 
 def _write_predictions(path, method, test_rows):
+    """Handles  write predictions for the values provided.
+
+    Args:
+        path: Value used by this function.
+        method: Value used by this function.
+        test_rows: Value used by this function.
+
+    Returns:
+        None.
+    """
     fields = [
         "split", "run_id", "scenario", "client_id", "client_type", "approach", "end_t",
         "true_queue_m", "true_class", "pred_queue_m", "pred_class",
@@ -24,6 +36,14 @@ def _write_predictions(path, method, test_rows):
 
 
 def test_paired_statistics_bootstraps_runs_and_checks_five_seeds(tmp_path):
+    """Checks that paired statistics bootstraps runs and checks five seeds.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     baseline = tmp_path / "baseline"
     baseline.mkdir()
     (baseline / "manifest.json").write_text(json.dumps({"dataset_id": "phase2_v2"}), encoding="utf-8")

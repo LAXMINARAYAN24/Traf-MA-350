@@ -17,6 +17,14 @@ class ExperimentReportError(ValueError):
 
 
 def _hash(path: Path) -> str:
+    """Handles  hash for the values provided.
+
+    Args:
+        path: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     digest = hashlib.sha256()
     with path.open("rb") as handle:
         for block in iter(lambda: handle.read(1024 * 1024), b""):
@@ -25,6 +33,14 @@ def _hash(path: Path) -> str:
 
 
 def _label(manifest: dict) -> str:
+    """Handles  label for the values provided.
+
+    Args:
+        manifest: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     method = manifest.get("method", "")
     if method == "central_pooled_offline_gru":
         return "Central GRU"
@@ -38,6 +54,14 @@ def _label(manifest: dict) -> str:
 
 
 def _short_label(run: dict) -> str:
+    """Handles  short label for the values provided.
+
+    Args:
+        run: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return {
         "Central GRU": "Central",
         "Flat FedAvg": "Flat FedAvg",
@@ -47,6 +71,14 @@ def _short_label(run: dict) -> str:
 
 
 def _read_run(path: Path) -> dict:
+    """Handles  read run for the values provided.
+
+    Args:
+        path: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     needed = ("manifest.json", "metrics.json", "predictions.csv")
     missing = [name for name in needed if not (path / name).is_file()]
     if missing:
@@ -62,10 +94,28 @@ def _read_run(path: Path) -> dict:
 
 
 def _row_key(row: dict) -> tuple:
+    """Handles  row key for the values provided.
+
+    Args:
+        row: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return row["run_id"], row["client_id"], round(float(row["end_t"]), 6)
 
 
 def _create_plots(runs: list[dict], plots_dir: Path, prefix: str = "") -> list[str]:
+    """Handles  create plots for the values provided.
+
+    Args:
+        runs: Value used by this function.
+        plots_dir: Value used by this function.
+        prefix: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     try:
         import matplotlib
         matplotlib.use("Agg")
@@ -215,12 +265,29 @@ def _create_plots(runs: list[dict], plots_dir: Path, prefix: str = "") -> list[s
 
 
 def _row_metrics(run: dict, client_type: str | None = None) -> dict:
+    """Handles  row metrics for the values provided.
+
+    Args:
+        run: Value used by this function.
+        client_type: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     metrics = run["metrics"]["test"]
     return (metrics.get("by_client_type", {}).get(client_type)
             if client_type else metrics["overall"])
 
 
 def _training_windows(run: dict) -> str:
+    """Handles  training windows for the values provided.
+
+    Args:
+        run: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     manifest = run["manifest"]
     if manifest.get("selected_train_windows") is not None:
         return f"{manifest['selected_train_windows']:,}"
@@ -231,6 +298,14 @@ def _training_windows(run: dict) -> str:
 
 
 def _duration(run: dict) -> str:
+    """Handles  duration for the values provided.
+
+    Args:
+        run: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     value = run["manifest"].get("wall_duration_s")
     if value is None:
         return "not recorded"
@@ -238,6 +313,14 @@ def _duration(run: dict) -> str:
 
 
 def _rounds_or_epochs(run: dict) -> str:
+    """Handles  rounds or epochs for the values provided.
+
+    Args:
+        run: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     manifest = run["manifest"]
     if manifest.get("method") == "central_pooled_offline_gru":
         return f"{manifest.get('epochs_run', 'n/a')} epochs"
@@ -247,6 +330,15 @@ def _rounds_or_epochs(run: dict) -> str:
 
 
 def _metric_table(runs: list[dict], detailed: bool = False) -> str:
+    """Handles  metric table for the values provided.
+
+    Args:
+        runs: Value used by this function.
+        detailed: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     lines = ["| Method | Train windows | Test N | Queue MAE (m) | Queue RMSE (m) | Macro-F1 | Balanced accuracy |",
              "|---|---:|---:|---:|---:|---:|---:|"]
     for run in runs:
@@ -272,6 +364,18 @@ def _metric_table(runs: list[dict], detailed: bool = False) -> str:
 
 
 def _write_report(runs: list[dict], directory: Path, title: str, plots: list[str], detailed: bool) -> None:
+    """Handles  write report for the values provided.
+
+    Args:
+        runs: Value used by this function.
+        directory: Value used by this function.
+        title: Value used by this function.
+        plots: Value used by this function.
+        detailed: Value used by this function.
+
+    Returns:
+        None.
+    """
     md = [f"# {title}", "",
           "This report uses only the saved experiment run artifacts supplied to this command. "
           "Scores are descriptive; overlapping sliding windows are not independent samples.", "",

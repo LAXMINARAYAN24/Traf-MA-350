@@ -14,6 +14,14 @@ PASS, FAIL, SKIP, INFO = "PASS", "FAIL", "SKIP", "INFO"
 
 
 def _jl(p: Path):
+    """Handles  jl for the values provided.
+
+    Args:
+        p: Value used by this function.
+
+    Returns:
+        None.
+    """
     with open(p, encoding="utf-8") as f:
         for line in f:
             if line.strip():
@@ -21,6 +29,14 @@ def _jl(p: Path):
 
 
 def load_manifest(run_dir) -> dict:
+    """Loads or reads load manifest for the values provided.
+
+    Args:
+        run_dir: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return json.loads((Path(run_dir) / "manifest.json").read_text(encoding="utf-8"))
 
 
@@ -44,6 +60,17 @@ def reproduce(run_dir) -> dict:
 
 
 def run_gate(run_dir, do_reproduce=False, do_pytest=False, tests_dir=None) -> list:
+    """Runs run gate for the values provided.
+
+    Args:
+        run_dir: Value used by this function.
+        do_reproduce: Value used by this function.
+        do_pytest: Value used by this function.
+        tests_dir: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     run_dir = Path(run_dir)
     m = load_manifest(run_dir)
     cfg = config_from_dict(m["config"])
@@ -156,6 +183,14 @@ def run_gate(run_dir, do_reproduce=False, do_pytest=False, tests_dir=None) -> li
 
 
 def format_gate(results) -> str:
+    """Formats or summarizes format gate for the values provided.
+
+    Args:
+        results: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     L = ["Phase 1 gate"]
     for name, st, detail in results:
         L.append(f"  [{st:4}] {name}\n         {detail}")

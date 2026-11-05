@@ -14,6 +14,14 @@ REJECT_REASONS = ("invalid", "duplicate", "stale", "out_of_order", "bad_provenan
 
 class Coordinator:
     def __init__(self, cfg: Config):
+        """Sets up this object using the values provided.
+
+        Args:
+            cfg: Value used by this function.
+
+        Returns:
+            None.
+        """
         self.cfg = cfg
         self._seen: set = set()
         self._last_seq: dict = {}
@@ -53,11 +61,32 @@ class Coordinator:
         return [(d["msg_id"], "rejected", "invalid:unexpected type")]
 
     def _reject(self, approach, reason, msg_id):
+        """Handles  reject for the values provided.
+
+        Args:
+            approach: Value used by this function.
+            reason: Value used by this function.
+            msg_id: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         key = reason.split(":")[0]
         (self.counts[approach]["rejected"] if approach in self.counts else self.unattributed_rejects)[key] += 1
         return (msg_id, "rejected", reason)
 
     def _ingest_one(self, d, now, approach, via):
+        """Handles  ingest one for the values provided.
+
+        Args:
+            d: Value used by this function.
+            now: Value used by this function.
+            approach: Value used by this function.
+            via: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         mid = d.get("msg_id", "?") if isinstance(d, dict) else "?"
         probs = validate(d)
         if probs:
@@ -87,6 +116,14 @@ class Coordinator:
 
     # -------------------------------------------------------------- global state
     def snapshot(self, now: float) -> dict:
+        """Finds or calculates snapshot for the values provided.
+
+        Args:
+            now: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         fresh = self.cfg.comms.stale_after_s
         out = {"time": now, "approaches": {}}
         for a in APPROACHES:
@@ -120,6 +157,11 @@ class Coordinator:
         return out
 
     def totals(self) -> dict:
+        """Handles totals for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         return {
             "direct_accepted": sum(c["direct_accepted"] for c in self.counts.values()),
             "relayed_accepted": sum(c["relayed_accepted"] for c in self.counts.values()),

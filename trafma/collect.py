@@ -1,4 +1,6 @@
-"""P2.1 driver: run a grid of SUMO scenarios x seeds, then label them and write the dataset manifest."""
+"""**SUMO/** This file is part of the SUMO related functionality. It runs SUMO scenarios and collects their saved outputs.
+
+P2.1 driver: run a grid of SUMO scenarios x seeds, then label them and write the dataset manifest."""
 from __future__ import annotations
 
 import json
@@ -16,6 +18,14 @@ DEFAULT_SPLITS = {"train": [1, 2, 3], "val": [4], "test": [5, 6]}
 
 
 def _run_one(cfg_dict: dict) -> dict:
+    """Handles  run one for the values provided.
+
+    Args:
+        cfg_dict: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     from .runner import run_simulation
     cfg = config_from_dict(cfg_dict)
     res = run_simulation(cfg, gui=False, quiet=True)
@@ -23,6 +33,14 @@ def _run_one(cfg_dict: dict) -> dict:
 
 
 def load_collect_config(path) -> dict:
+    """Loads or reads load collect config for the values provided.
+
+    Args:
+        path: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     p = Path(path)
     if not p.is_file():
         raise ConfigError(f"collect config not found: {p}")
@@ -44,6 +62,17 @@ def load_collect_config(path) -> dict:
 
 
 def collect(path, resume=False, jobs=None, out=print) -> dict:
+    """Runs collect for the values provided.
+
+    Args:
+        path: Value used by this function.
+        resume: Value used by this function.
+        jobs: Value used by this function.
+        out: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     d = load_collect_config(path)
     ds_id = d.get("dataset_id", "dataset")
     ds_dir = Path(d.get("output_dir", "data")) / ds_id

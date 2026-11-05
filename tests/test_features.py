@@ -1,3 +1,5 @@
+"""Test helpers for test features."""
+
 import pytest
 
 from trafma.features import (
@@ -11,6 +13,11 @@ from trafma.features import (
 
 @pytest.fixture
 def context():
+    """Handles context for the values provided.
+
+    Returns:
+        The result produced by this function.
+    """
     return FeatureContext(
         zone_m=150.0,
         arm_length_m=300.0,
@@ -27,6 +34,11 @@ def context():
 
 
 def test_feature_schema_order_and_dimension():
+    """Checks that feature schema order and dimension.
+
+    Returns:
+        None.
+    """
     assert FEATURE_DIM == 22
     assert len(FEATURE_NAMES) == 22
     assert FEATURE_NAMES[0] == "local_mean_speed_mps"
@@ -35,6 +47,14 @@ def test_feature_schema_order_and_dimension():
 
 
 def test_rsu_empty_zone_preserves_missing_means_and_measured_zeroes(context):
+    """Checks that rsu empty zone preserves missing means and measured zeroes.
+
+    Args:
+        context: Value used by this function.
+
+    Returns:
+        None.
+    """
     view = {
         "zone_m": 150.0,
         "vehicle_count": 0,
@@ -60,6 +80,14 @@ def test_rsu_empty_zone_preserves_missing_means_and_measured_zeroes(context):
 
 
 def test_vehicle_mean_speed_includes_self_once_and_capacity_is_clipped(context):
+    """Checks that vehicle mean speed includes self once and capacity is clipped.
+
+    Args:
+        context: Value used by this function.
+
+    Returns:
+        None.
+    """
     view = {
         "scope": "incoming_local",
         "speed_mps": 13.89,
@@ -86,6 +114,14 @@ def test_vehicle_mean_speed_includes_self_once_and_capacity_is_clipped(context):
 
 
 def test_vehicle_out_of_scope_and_inconsistent_missingness_are_rejected(context):
+    """Checks that vehicle out of scope and inconsistent missingness are rejected.
+
+    Args:
+        context: Value used by this function.
+
+    Returns:
+        None.
+    """
     with pytest.raises(FeatureError, match="incoming_local"):
         adapt_observation({"scope": "in_junction"}, "vehicle", context)
 

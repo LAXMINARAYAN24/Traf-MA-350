@@ -29,6 +29,14 @@ _WINDOW_BANDS = (
 
 
 def _window_band(windows: int) -> str:
+    """Handles  window band for the values provided.
+
+    Args:
+        windows: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     for name, lower, upper in _WINDOW_BANDS:
         if windows >= lower and (upper is None or windows <= upper):
             return name
@@ -96,6 +104,14 @@ def _select_representative_clients(
 
 
 def _selection_strata(eligible: list[tuple[str, dict]]) -> dict[str, int]:
+    """Handles  selection strata for the values provided.
+
+    Args:
+        eligible: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     counts: Counter[str] = Counter()
     for _client_id, client in eligible:
         key = "|".join((
@@ -109,6 +125,15 @@ def _selection_strata(eligible: list[tuple[str, dict]]) -> dict[str, int]:
 
 
 def _percentile(values: list[float], percentile: float) -> float:
+    """Handles  percentile for the values provided.
+
+    Args:
+        values: Value used by this function.
+        percentile: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     ordered = sorted(values)
     if not ordered:
         raise LocalEvaluationError("cannot calculate a percentile for an empty group")
@@ -119,6 +144,14 @@ def _percentile(values: list[float], percentile: float) -> float:
 
 
 def _distribution(rows: list[dict]) -> dict:
+    """Handles  distribution for the values provided.
+
+    Args:
+        rows: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     metrics = [float(row["mae_m"]) for row in rows if row.get("status") == "completed"]
     if not metrics:
         return {"clients": 0, "median_mae_m": None, "iqr_mae_m": None, "worst_decile_mae_m": None}
@@ -131,6 +164,14 @@ def _distribution(rows: list[dict]) -> dict:
 
 
 def _read_records(path: Path) -> list[dict]:
+    """Handles  read records for the values provided.
+
+    Args:
+        path: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     if not path.is_file():
         return []
     records = []
@@ -148,6 +189,17 @@ def _read_records(path: Path) -> list[dict]:
 
 
 def _write_summary(output_dir: Path, manifest: dict, rows: list[dict], config_hash: str) -> None:
+    """Handles  write summary for the values provided.
+
+    Args:
+        output_dir: Value used by this function.
+        manifest: Value used by this function.
+        rows: Value used by this function.
+        config_hash: Value used by this function.
+
+    Returns:
+        None.
+    """
     completed = [row for row in rows if row.get("status") == "completed"]
     grouped: dict[str, list[dict]] = defaultdict(list)
     for row in completed:

@@ -1,3 +1,5 @@
+"""Test helpers for test models federation."""
+
 import numpy as np
 import pytest
 import torch
@@ -14,6 +16,18 @@ from trafma.federated_training import _partition_iid_windows
 
 
 def _update(client, tensors, base, n=1, **overrides):
+    """Handles  update for the values provided.
+
+    Args:
+        client: Value used by this function.
+        tensors: Value used by this function.
+        base: Value used by this function.
+        n: Value used by this function.
+        **overrides: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     fields = {
         "client_id": client,
         "client_type": "vehicle",
@@ -33,6 +47,11 @@ def _update(client, tensors, base, n=1, **overrides):
 
 
 def test_gru_has_both_heads_expected_shapes_and_finite_gradients():
+    """Checks that gru has both heads expected shapes and finite gradients.
+
+    Returns:
+        None.
+    """
     model = GRUPredictor()
     features = torch.zeros(4, SEQUENCE_LENGTH, FEATURE_DIM)
     output = model(features)
@@ -49,11 +68,21 @@ def test_gru_has_both_heads_expected_shapes_and_finite_gradients():
 
 
 def test_gru_rejects_bad_tensor_shapes():
+    """Checks that gru rejects bad tensor shapes.
+
+    Returns:
+        None.
+    """
     with pytest.raises(ValueError, match="expected input"):
         GRUPredictor()(torch.zeros(2, 9, FEATURE_DIM))
 
 
 def test_flat_fedavg_is_sample_weighted_and_validates_rejections():
+    """Checks that flat fedavg is sample weighted and validates rejections.
+
+    Returns:
+        None.
+    """
     base = {"weight": np.array([0.0, 0.0], dtype=np.float32)}
     updates = [
         _update("small", {"weight": np.array([10.0, 4.0], dtype=np.float32)}, base, n=1),
@@ -79,6 +108,11 @@ def test_flat_fedavg_is_sample_weighted_and_validates_rejections():
 
 
 def test_duplicate_client_submissions_are_not_double_counted():
+    """Checks that duplicate client submissions are not double counted.
+
+    Returns:
+        None.
+    """
     base = {"weight": np.array([0.0], dtype=np.float32)}
     update = _update("same", {"weight": np.array([5.0], dtype=np.float32)}, base, n=4)
     result = aggregate_flat([update, update], base, round_id=3, model_version=7, deadline_s=10)
@@ -89,6 +123,11 @@ def test_duplicate_client_submissions_are_not_double_counted():
 
 
 def test_hierarchical_fedavg_equals_flat_with_unequal_nonempty_groups():
+    """Checks that hierarchical fedavg equals flat with unequal nonempty groups.
+
+    Returns:
+        None.
+    """
     base = {"weight": np.array([0.0, 0.0], dtype=np.float64)}
     updates = [
         _update("n1", {"weight": np.array([4.0, 1.0])}, base, n=2, group_id="rsu_N"),
@@ -112,6 +151,11 @@ def test_hierarchical_fedavg_equals_flat_with_unequal_nonempty_groups():
 
 
 def test_hierarchical_fedavg_counts_persistent_rsu_sensor_update_once():
+    """Checks that hierarchical fedavg counts persistent rsu sensor update once.
+
+    Returns:
+        None.
+    """
     base = {"weight": np.array([0.0], dtype=np.float64)}
     updates = [
         _update("vehicle_a", {"weight": np.array([2.0])}, base, n=2, group_id="rsu_N"),
@@ -141,6 +185,11 @@ def test_hierarchical_fedavg_counts_persistent_rsu_sensor_update_once():
 
 
 def test_hierarchical_fedavg_without_rsu_self_updates_matches_flat():
+    """Checks that hierarchical fedavg without rsu self updates matches flat.
+
+    Returns:
+        None.
+    """
     base = {"weight": np.array([0.0], dtype=np.float64)}
     vehicle_updates = [
         _update("vehicle_n", {"weight": np.array([2.0])}, base, n=2, group_id="rsu_N"),
@@ -166,6 +215,11 @@ def test_hierarchical_fedavg_without_rsu_self_updates_matches_flat():
 
 
 def test_synthetic_iid_partition_balances_class_distribution_deterministically():
+    """Checks that synthetic iid partition balances class distribution deterministically.
+
+    Returns:
+        None.
+    """
     samples = [
         FeatureWindow(
             "dataset", f"run_{index}", "train", "scenario", f"run_{index}/veh_1",
@@ -186,6 +240,11 @@ def test_synthetic_iid_partition_balances_class_distribution_deterministically()
 
 
 def test_empty_federated_round_keeps_prior_weights():
+    """Checks that empty federated round keeps prior weights.
+
+    Returns:
+        None.
+    """
     base = {"weight": np.array([1.0, 2.0], dtype=np.float32)}
     result = aggregate_flat([], base, round_id=3, model_version=7, deadline_s=10)
     assert result.sample_mass == 0
@@ -205,6 +264,15 @@ def test_empty_federated_round_keeps_prior_weights():
     ],
 )
 def test_flat_fedavg_rejects_invalid_update_metadata_and_tensors(overrides, expected_reason):
+    """Checks that flat fedavg rejects invalid update metadata and tensors.
+
+    Args:
+        overrides: Value used by this function.
+        expected_reason: Value used by this function.
+
+    Returns:
+        None.
+    """
     base = {"weight": np.array([0.0], dtype=np.float32)}
     fields = dict(overrides)
     tensors = fields.pop("tensors", {"weight": np.array([1.0], dtype=np.float32)})

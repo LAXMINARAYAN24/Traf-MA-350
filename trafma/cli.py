@@ -10,6 +10,14 @@ from .config import Config, ConfigError, load_config, parse_set_overrides
 
 
 def _cfg_from_args(a) -> "Config":
+    """Handles  cfg from args for the values provided.
+
+    Args:
+        a: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     ov = parse_set_overrides(getattr(a, "set", []))
     run = ov.setdefault("run", {})
     for flag, key in (("vehicles", "vehicles"), ("seed", "seed"), ("duration", "duration_s"),
@@ -27,6 +35,14 @@ def _cfg_from_args(a) -> "Config":
 
 
 def main(argv=None) -> int:
+    """Handles main for the values provided.
+
+    Args:
+        argv: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     p = argparse.ArgumentParser(prog="trafma", description="TRAF-MA SUMO simulation layer")
     sub = p.add_subparsers(dest="cmd", required=True)
 
@@ -34,6 +50,14 @@ def main(argv=None) -> int:
     d.add_argument("--save", help="write the environment report to this JSON path")
 
     def common(sp):
+        """Handles common for the values provided.
+
+        Args:
+            sp: Value used by this function.
+
+        Returns:
+            None.
+        """
         sp.add_argument("--config", help="YAML config (default: built-in defaults)")
         sp.add_argument("--set", action="append", default=[], metavar="KEY=VAL",
                         help="override any config value, e.g. agents.rsu_zone_m=120")

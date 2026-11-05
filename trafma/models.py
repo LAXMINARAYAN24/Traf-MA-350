@@ -21,6 +21,18 @@ class GRUPredictor(nn.Module):
         dropout: float = 0.0,
         shared_size: int = 16,
     ):
+        """Sets up this object using the values provided.
+
+        Args:
+            input_size: Value used by this function.
+            hidden_size: Value used by this function.
+            num_layers: Value used by this function.
+            dropout: Value used by this function.
+            shared_size: Value used by this function.
+
+        Returns:
+            None.
+        """
         super().__init__()
         if input_size != FEATURE_DIM:
             raise ValueError(f"input_size must match the frozen feature schema ({FEATURE_DIM})")
@@ -45,6 +57,14 @@ class GRUPredictor(nn.Module):
         self.class_head = nn.Linear(shared_size, 3)
 
     def forward(self, features: torch.Tensor) -> dict[str, torch.Tensor]:
+        """Handles forward for the values provided.
+
+        Args:
+            features: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         if features.ndim != 3 or features.shape[1:] != (SEQUENCE_LENGTH, self.input_size):
             raise ValueError(
                 f"expected input [batch, {SEQUENCE_LENGTH}, {self.input_size}], got {tuple(features.shape)}"
@@ -63,6 +83,19 @@ def multitask_loss(
     regression_weight: float = 1.0,
     classification_weight: float = 1.0,
 ) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
+    """Handles multitask loss for the values provided.
+
+    Args:
+        outputs: Value used by this function.
+        queue_ratio: Value used by this function.
+        congestion_class: Value used by this function.
+        class_weights: Value used by this function.
+        regression_weight: Value used by this function.
+        classification_weight: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     if regression_weight < 0 or classification_weight < 0:
         raise ValueError("loss weights must be nonnegative")
     if regression_weight == 0 and classification_weight == 0:

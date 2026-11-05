@@ -35,6 +35,14 @@ RESERVED_TRAINING_SEEDS = frozenset(range(400, 405))
 
 
 def _validate_training(config: dict) -> dict:
+    """Handles  validate training for the values provided.
+
+    Args:
+        config: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     training = config.get("training")
     if not isinstance(training, dict):
         raise TrainingError("learning config must define training settings")
@@ -104,6 +112,15 @@ def configure_threads(training: dict) -> int:
 
 
 def _seed_everything(seed: int, deterministic: bool):
+    """Handles  seed everything for the values provided.
+
+    Args:
+        seed: Value used by this function.
+        deterministic: Value used by this function.
+
+    Returns:
+        None.
+    """
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -166,6 +183,14 @@ def _sample_windows(dataset_dir: Path, split: str, maximum: int, seed: int,
 
 
 def _to_dataset(samples: list[FeatureWindow]) -> TensorDataset:
+    """Handles  to dataset for the values provided.
+
+    Args:
+        samples: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     features = np.asarray([sample.features for sample in samples], dtype=np.float32)
     queue_ratios = np.asarray([sample.queue_m / sample.zone_m for sample in samples], dtype=np.float32)
     labels = np.asarray([sample.congestion_class for sample in samples], dtype=np.int64)
@@ -177,6 +202,17 @@ def _to_dataset(samples: list[FeatureWindow]) -> TensorDataset:
 
 
 def _loss_for(model, batches, training, optimizer=None):
+    """Handles  loss for for the values provided.
+
+    Args:
+        model: Value used by this function.
+        batches: Value used by this function.
+        training: Value used by this function.
+        optimizer: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     train_mode = optimizer is not None
     model.train(train_mode)
     totals = {"loss": 0.0, "regression": 0.0, "classification": 0.0, "samples": 0}
@@ -217,6 +253,16 @@ def _loss_for(model, batches, training, optimizer=None):
 
 
 def _train_model(training, train_samples, val_samples):
+    """Handles  train model for the values provided.
+
+    Args:
+        training: Value used by this function.
+        train_samples: Value used by this function.
+        val_samples: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     _seed_everything(int(training["seed"]), bool(training["deterministic"]))
     device = resolve_device(training)
     model = GRUPredictor(
@@ -268,6 +314,15 @@ def _train_model(training, train_samples, val_samples):
 
 
 def _prediction_metrics_from_saved(path: Path, requested_split: str) -> dict:
+    """Handles  prediction metrics from saved for the values provided.
+
+    Args:
+        path: Value used by this function.
+        requested_split: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     metrics = defaultdict(_Metrics)
     run_metrics = defaultdict(_Metrics)
     with path.open(newline="", encoding="utf-8") as predictions:
@@ -305,6 +360,16 @@ def _prediction_metrics_from_saved(path: Path, requested_split: str) -> dict:
 
 
 def _predict(model, samples: list[FeatureWindow], batch_size: int):
+    """Handles  predict for the values provided.
+
+    Args:
+        model: Value used by this function.
+        samples: Value used by this function.
+        batch_size: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     loader = DataLoader(_to_dataset(samples), batch_size=batch_size, shuffle=False, num_workers=0)
     predicted_ratios = []
     predicted_classes = []
@@ -326,6 +391,11 @@ def _predict(model, samples: list[FeatureWindow], batch_size: int):
 
 
 def _repo_state() -> dict:
+    """Handles  repo state for the values provided.
+
+    Returns:
+        The result produced by this function.
+    """
     commit_result = subprocess.run(["git", "rev-parse", "--verify", "HEAD"],
                                    capture_output=True, text=True, check=False)
     status_result = subprocess.run(["git", "status", "--porcelain"],

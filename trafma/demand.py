@@ -1,4 +1,6 @@
-"""P1.3 - Seeded, reproducible demand. Same (seed, config) -> byte-identical routes file."""
+"""**SUMO/** This file is part of the SUMO related functionality. It creates vehicle demand and SUMO route files.
+
+P1.3 - Seeded, reproducible demand. Same (seed, config) -> byte-identical routes file."""
 from __future__ import annotations
 
 import random
@@ -22,10 +24,23 @@ class VehicleSpec:
 
     @property
     def route(self) -> str:
+        """Finds or calculates route for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         return route_id(self.origin, self.dest)
 
 
 def approach_weights(cfg: Config) -> dict:
+    """Finds or calculates approach weights for the values provided.
+
+    Args:
+        cfg: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     d = cfg.demand
     if d.profile == "balanced":
         w = {a: 1.0 for a in APPROACHES}
@@ -38,6 +53,14 @@ def approach_weights(cfg: Config) -> dict:
 
 
 def depart_window(cfg: Config) -> float:
+    """Handles depart window for the values provided.
+
+    Args:
+        cfg: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return max(cfg.run.duration_s - cfg.demand.depart_tail_s, 0.0)
 
 
@@ -65,6 +88,16 @@ def generate_demand(cfg: Config) -> list:
 
 
 def write_routes(specs: list, cfg: Config, path: Path) -> Path:
+    """Writes or saves write routes for the values provided.
+
+    Args:
+        specs: Value used by this function.
+        cfg: Value used by this function.
+        path: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     v = cfg.vehicle
     lines = ['<routes>',
              f'  <vType id="car" length="{v.length_m}" minGap="{v.min_gap_m}" accel="{v.accel_mps2}" '

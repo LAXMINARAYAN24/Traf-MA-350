@@ -20,6 +20,14 @@ from trafma.training import _sample_windows
 
 
 def digest(path: Path) -> str:
+    """Finds or calculates digest for the values provided.
+
+    Args:
+        path: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     h = hashlib.sha256()
     with path.open("rb") as stream:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
@@ -28,6 +36,16 @@ def digest(path: Path) -> str:
 
 
 def export(run_dir: Path, dataset_dir: Path, output_dir: Path) -> None:
+    """Writes or saves export for the values provided.
+
+    Args:
+        run_dir: Value used by this function.
+        dataset_dir: Value used by this function.
+        output_dir: Value used by this function.
+
+    Returns:
+        None.
+    """
     run_manifest_path = run_dir / "manifest.json"
     resolved_path = run_dir / "resolved_config.yaml"
     dataset_manifest_path = dataset_dir / "dataset_manifest.json"
@@ -163,6 +181,11 @@ def export(run_dir: Path, dataset_dir: Path, output_dir: Path) -> None:
 
 
 def main() -> None:
+    """Handles main for the values provided.
+
+    Returns:
+        None.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run", type=Path, required=True, help="saved hierarchical FedAvg run directory")
     parser.add_argument("--dataset", type=Path, required=True, help="dataset directory used by the run")

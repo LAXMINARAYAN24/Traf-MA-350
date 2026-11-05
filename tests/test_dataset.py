@@ -1,3 +1,5 @@
+"""Test helpers for test dataset."""
+
 import json
 
 import pytest
@@ -10,6 +12,15 @@ pytestmark = needs_sumo
 
 
 def write(tmp_path, splits):
+    """Writes or saves write for the values provided.
+
+    Args:
+        tmp_path: Value used by this function.
+        splits: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     p = tmp_path / "c.yaml"
     p.write_text(yaml.safe_dump({"dataset_id": "t", "output_dir": str(tmp_path / "data"),
                                  "base": {"run": {"duration_s": 400}},
@@ -19,11 +30,27 @@ def write(tmp_path, splits):
 
 
 def test_overlapping_split_seeds_rejected(tmp_path):
+    """Checks that overlapping split seeds rejected.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     with pytest.raises(ConfigError, match="disjoint"):
         load_collect_config(write(tmp_path, {"train": [1, 2], "test": [2]}))
 
 
 def test_missing_sections_rejected(tmp_path):
+    """Checks that missing sections rejected.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     p = tmp_path / "x.yaml"; p.write_text("dataset_id: a\n")
     with pytest.raises(ConfigError):
         load_collect_config(p)
@@ -31,11 +58,27 @@ def test_missing_sections_rejected(tmp_path):
 
 @pytest.fixture(scope="module")
 def man(tmp_path_factory):
+    """Handles man for the values provided.
+
+    Args:
+        tmp_path_factory: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     tp = tmp_path_factory.mktemp("ds")
     return collect(write(tp, {"train": [1], "test": [2]}), out=lambda *a: None), tp / "data" / "t"
 
 
 def test_integrity_block_clean(man):
+    """Checks that integrity block clean.
+
+    Args:
+        man: Value used by this function.
+
+    Returns:
+        None.
+    """
     m, _ = man
     i = m["integrity"]
     assert i["split_run_overlap"] == [] and i["windows_violating_run_or_horizon_rule"] == 0
@@ -44,6 +87,14 @@ def test_integrity_block_clean(man):
 
 
 def test_windows_never_cross_runs_and_labels_are_in_the_future(man):
+    """Checks that windows never cross runs and labels are in the future.
+
+    Args:
+        man: Value used by this function.
+
+    Returns:
+        None.
+    """
     m, d = man
     H = m["definitions"]["horizon_s"]
     for run in m["runs"]:
@@ -54,6 +105,14 @@ def test_windows_never_cross_runs_and_labels_are_in_the_future(man):
 
 
 def test_vehicle_windows_require_full_incoming_history(man):
+    """Checks that vehicle windows require full incoming history.
+
+    Args:
+        man: Value used by this function.
+
+    Returns:
+        None.
+    """
     m, d = man
     hist = m["definitions"]["history_len"]
     run = next(iter(m["runs"]))
@@ -72,6 +131,14 @@ def test_vehicle_windows_require_full_incoming_history(man):
 
 
 def test_trainable_rule_and_manifest_files(man):
+    """Checks that trainable rule and manifest files.
+
+    Args:
+        man: Value used by this function.
+
+    Returns:
+        None.
+    """
     m, d = man
     mw = m["definitions"]["min_windows_trainable"]
     assert all(c["trainable"] == (c["windows"] >= mw) for c in m["clients"].values())
@@ -80,6 +147,14 @@ def test_trainable_rule_and_manifest_files(man):
 
 
 def test_runs_are_physically_separated_by_split(man):
+    """Checks that runs are physically separated by split.
+
+    Args:
+        man: Value used by this function.
+
+    Returns:
+        None.
+    """
     m, d = man
     sp = json.loads((d / "splits.json").read_text())
     assert set(sp) == {"train", "test"} and not (d / "runs").exists()
@@ -90,6 +165,14 @@ def test_runs_are_physically_separated_by_split(man):
 
 
 def test_default_splits_when_config_has_none(tmp_path):
+    """Checks that default splits when config has none.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     import yaml
     from trafma.collect import DEFAULT_SPLITS
     p = tmp_path / "c.yaml"

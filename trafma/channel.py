@@ -8,6 +8,16 @@ from .config import LinkCfg
 
 class Channel:
     def __init__(self, name: str, link: LinkCfg, seed: int):
+        """Sets up this object using the values provided.
+
+        Args:
+            name: Value used by this function.
+            link: Value used by this function.
+            seed: Value used by this function.
+
+        Returns:
+            None.
+        """
         self.name, self.link = name, link
         self.rng = random.Random(f"trafma-chan:{name}:{seed}")
         self._q: list = []       # (deliver_at, order, item, tag)
@@ -29,10 +39,23 @@ class Channel:
         return outcomes
 
     def deliver_due(self, now: float) -> list:
+        """Finishes or delivers deliver due for the values provided.
+
+        Args:
+            now: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         due = [x for x in self._q if x[0] <= now + 1e-9]
         self._q = [x for x in self._q if x[0] > now + 1e-9]
         due.sort(key=lambda x: (x[0], x[1]))
         return [(x[2], x[3]) for x in due]
 
     def in_flight(self) -> int:
+        """Handles in flight for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         return len(self._q)

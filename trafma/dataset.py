@@ -19,6 +19,14 @@ FORBIDDEN_IN_AGENT_LOGS = {"zone_queue_m", "zone_queue_ratio", "zone_queue_count
 
 
 def _hist(classes):
+    """Handles  hist for the values provided.
+
+    Args:
+        classes: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     h = [0, 0, 0]
     for c in classes:
         h[c] += 1
@@ -26,11 +34,28 @@ def _hist(classes):
 
 
 def _tv(p, q):
+    """Handles  tv for the values provided.
+
+    Args:
+        p: Value used by this function.
+        q: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     sp, sq = sum(p) or 1, sum(q) or 1
     return 0.5 * sum(abs(a / sp - b / sq) for a, b in zip(p, q))
 
 
 def _agent_keys(rec) -> set:
+    """Handles  agent keys for the values provided.
+
+    Args:
+        rec: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return set(rec.keys()) | set(rec.get("view", {}).keys())
 
 
@@ -47,6 +72,15 @@ def process_run(run_dir: Path) -> dict:
     t_end = times[-1] if times else 0.0
 
     def label(approach, t_obs):
+        """Finds or calculates label for the values provided.
+
+        Args:
+            approach: Value used by this function.
+            t_obs: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         t2 = round(t_obs + H, 6)
         if t2 not in truth:
             return None
@@ -65,6 +99,18 @@ def process_run(run_dir: Path) -> dict:
     wf = open(run_dir / "windows.jsonl", "w", encoding="utf-8")
 
     def emit(cid, ctype, approach, end_t, lb):
+        """Handles emit for the values provided.
+
+        Args:
+            cid: Value used by this function.
+            ctype: Value used by this function.
+            approach: Value used by this function.
+            end_t: Value used by this function.
+            lb: Value used by this function.
+
+        Returns:
+            None.
+        """
         wf.write(json.dumps({"client": cid, "type": ctype, "approach": approach, "end_t": end_t, **lb},
                             sort_keys=True) + "\n")
         c = clients[cid]
@@ -202,6 +248,14 @@ def build_dataset_manifest(ds_dir: Path, run_index: list, base_cfg: dict, splits
 
 
 def format_dataset_report(man: dict) -> str:
+    """Formats or summarizes format dataset report for the values provided.
+
+    Args:
+        man: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     L = ["=== dataset report ===", "congestion rule : " + man["definitions"]["congestion_rule"],
          f"horizon {man['definitions']['horizon_s']} s, history {man['definitions']['history_len']} steps, "
          f"trainable if >= {man['definitions']['min_windows_trainable']} windows", ""]

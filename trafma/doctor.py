@@ -1,4 +1,6 @@
-"""P1.1 - Environment diagnostic: can Python start and cleanly close a minimal SUMO process?"""
+"""**SUMO/** This file is part of the SUMO related functionality. It checks the SUMO installation and simulator tools.
+
+P1.1 - Environment diagnostic: can Python start and cleanly close a minimal SUMO process?"""
 from __future__ import annotations
 
 import json
@@ -13,6 +15,16 @@ REQUIRED_PY = (3, 9)
 
 
 def _check(name, fn, results):
+    """Handles  check for the values provided.
+
+    Args:
+        name: Value used by this function.
+        fn: Value used by this function.
+        results: Value used by this function.
+
+    Returns:
+        None.
+    """
     try:
         ok, detail = fn()
     except Exception as e:  # diagnostics must never crash
@@ -21,12 +33,26 @@ def _check(name, fn, results):
 
 
 def run_doctor(save: str | None = None, out=print) -> int:
+    """Runs run doctor for the values provided.
+
+    Args:
+        save: Value used by this function.
+        out: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     res: list = []
     info = {"platform": platform.platform(), "python": sys.version.split()[0], "executable": sys.executable}
 
     _check("Python >= 3.9", lambda: (sys.version_info >= REQUIRED_PY, info["python"]), res)
 
     def mods():
+        """Handles mods for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         import importlib
         miss, ver = [], {}
         for m in ("yaml", "traci", "sumolib"):
@@ -40,6 +66,11 @@ def run_doctor(save: str | None = None, out=print) -> int:
     _check("Python packages (pyyaml, traci, sumolib)", mods, res)
 
     def opt():
+        """Handles opt for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         try:
             import matplotlib
             return True, f"matplotlib {matplotlib.__version__} (optional, for `report`)"
@@ -48,6 +79,11 @@ def run_doctor(save: str | None = None, out=print) -> int:
     _check("Optional plotting", opt, res)
 
     def bins():
+        """Handles bins for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         import sumolib
         found = {}
         for b in ("sumo", "sumo-gui", "netconvert"):
@@ -63,6 +99,11 @@ def run_doctor(save: str | None = None, out=print) -> int:
     _check("SUMO binaries", bins, res)
 
     def ver():
+        """Handles ver for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         import sumolib
         out_ = subprocess.run([sumolib.checkBinary("sumo"), "--version"], capture_output=True, text=True).stdout
         v = out_.strip().splitlines()[0] if out_.strip() else "?"
@@ -71,6 +112,11 @@ def run_doctor(save: str | None = None, out=print) -> int:
     _check("SUMO version", ver, res)
 
     def smoke():
+        """Handles smoke for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         import sumolib, traci
         with tempfile.TemporaryDirectory() as d:
             d = Path(d)
@@ -94,6 +140,11 @@ def run_doctor(save: str | None = None, out=print) -> int:
     _check("Start / step / close a minimal SUMO process via TraCI", smoke, res)
 
     def gui():
+        """Handles gui for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         if os.name != "nt" and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
             return True, "no display detected - fine for headless; --gui needs a desktop session"
         return True, "display available"

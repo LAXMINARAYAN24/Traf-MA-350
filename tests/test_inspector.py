@@ -8,11 +8,30 @@ from trafma.inspector import InspectError, inspect_rsu, inspect_vehicle
 
 
 def _w(path, rows):
+    """Handles  w for the values provided.
+
+    Args:
+        path: Value used by this function.
+        rows: Value used by this function.
+
+    Returns:
+        None.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
 
 
 def vrec(t, scope="incoming_local", dist=100.0):
+    """Handles vrec for the values provided.
+
+    Args:
+        t: Value used by this function.
+        scope: Value used by this function.
+        dist: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     v = {"scope": scope, "edge_id": "N_in", "speed_mps": 5.0, "accel_mps2": 0.0, "lane_pos_m": 100.0,
          "waiting_time_s": 0.0, "dist_to_stop_line_m": dist if scope == "incoming_local" else None,
          "signal_state": None, "neighbor_count": 0 if scope == "incoming_local" else None,
@@ -21,6 +40,20 @@ def vrec(t, scope="incoming_local", dist=100.0):
 
 
 def ev(t, e, frm, to, link, msg, reason=None):
+    """Handles ev for the values provided.
+
+    Args:
+        t: Value used by this function.
+        e: Value used by this function.
+        frm: Value used by this function.
+        to: Value used by this function.
+        link: Value used by this function.
+        msg: Value used by this function.
+        reason: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     r = {"ev": e, "from": frm, "to": to, "link": link, "msg": msg, "t": float(t), "type": None}
     if reason:
         r["reason"] = reason
@@ -29,6 +62,14 @@ def ev(t, e, frm, to, link, msg, reason=None):
 
 @pytest.fixture
 def run_dir(tmp_path):
+    """Runs run dir for the values provided.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     d = tmp_path / "r1"
     d.mkdir()
     (d / "manifest.json").write_text(json.dumps({
@@ -50,6 +91,14 @@ def run_dir(tmp_path):
 
 
 def test_vehicle_view_and_message_paths(run_dir):
+    """Checks that vehicle view and message paths.
+
+    Args:
+        run_dir: Value used by this function.
+
+    Returns:
+        None.
+    """
     lines = []
     r = inspect_vehicle(run_dir, "veh_0001", every=1, out=lines.append)
     text = "\n".join(lines)
@@ -61,6 +110,14 @@ def test_vehicle_view_and_message_paths(run_dir):
 
 
 def test_missing_trace_is_explained_not_crashed(run_dir):
+    """Checks that missing trace is explained not crashed.
+
+    Args:
+        run_dir: Value used by this function.
+
+    Returns:
+        None.
+    """
     (run_dir / "messages.jsonl").unlink()
     lines = []
     r = inspect_vehicle(run_dir, "veh_0001", out=lines.append)
@@ -68,6 +125,15 @@ def test_missing_trace_is_explained_not_crashed(run_dir):
 
 
 def test_unknown_agent_errors(run_dir, tmp_path):
+    """Checks that unknown agent errors.
+
+    Args:
+        run_dir: Value used by this function.
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     with pytest.raises(InspectError, match="no log for vehicle"):
         inspect_vehicle(run_dir, "veh_9999", out=lambda *_: None)
     with pytest.raises(InspectError, match="RSU must be one of"):
@@ -77,12 +143,29 @@ def test_unknown_agent_errors(run_dir, tmp_path):
 
 
 def test_rsu_view_handles_old_format_logs(run_dir):
+    """Checks that rsu view handles old format logs.
+
+    Args:
+        run_dir: Value used by this function.
+
+    Returns:
+        None.
+    """
     lines = []
     r = inspect_rsu(run_dir, "n", every=10, out=lines.append)
     assert r["observations"] == 1 and any("veh_0001" in l for l in lines)
 
 
 def test_cli_exit_codes(run_dir, capsys):
+    """Checks that cli exit codes.
+
+    Args:
+        run_dir: Value used by this function.
+        capsys: Value used by this function.
+
+    Returns:
+        None.
+    """
     assert main(["inspect", "--run", str(run_dir), "--vehicle", "veh_0001", "--every", "1"]) == 0
     assert main(["inspect", "--run", str(run_dir), "--rsu", "N"]) == 0
     assert main(["inspect", "--run", str(run_dir), "--vehicle", "veh_9999"]) == 2
@@ -93,6 +176,14 @@ def test_cli_exit_codes(run_dir, capsys):
 
 @needs_sumo
 def test_inspect_real_run_every_report_accepted(tmp_path):
+    """Checks that inspect real run every report accepted.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     from trafma.config import load_config
     from trafma.runner import run_simulation
     res = run_simulation(load_config(overrides={"run": {"output_dir": str(tmp_path), "run_id": "real",

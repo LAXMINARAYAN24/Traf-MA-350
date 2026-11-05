@@ -57,6 +57,16 @@ class _Client:
 
 
 def _class_for(queue_m: float, zone_m: float, thresholds: list[float]) -> int:
+    """Handles  class for for the values provided.
+
+    Args:
+        queue_m: Value used by this function.
+        zone_m: Value used by this function.
+        thresholds: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     ratio = queue_m / zone_m
     if ratio < thresholds[0]:
         return 0
@@ -69,6 +79,14 @@ class LiveFederation:
     """Collect agent-local windows and call hierarchical aggregation only at round boundaries."""
 
     def __init__(self, learning_config_path: str | Path):
+        """Sets up this object using the values provided.
+
+        Args:
+            learning_config_path: Value used by this function.
+
+        Returns:
+            None.
+        """
         config_path = Path(learning_config_path)
         if not config_path.is_file():
             raise LiveFederationError(f"learning config not found: {config_path}")
@@ -131,6 +149,17 @@ class LiveFederation:
         self._feature_schema_hash = FEATURE_SCHEMA_HASH
 
     def start(self, run_id: str, run_dir: Path, config: dict, topology_path: Path) -> None:
+        """Handles start for the values provided.
+
+        Args:
+            run_id: Value used by this function.
+            run_dir: Value used by this function.
+            config: Value used by this function.
+            topology_path: Value used by this function.
+
+        Returns:
+            None.
+        """
         if self.log_file is not None:
             raise LiveFederationError("live federation has already been started")
         self.run_id = run_id
@@ -180,11 +209,29 @@ class LiveFederation:
         })
 
     def _write(self, record: dict) -> None:
+        """Handles  write for the values provided.
+
+        Args:
+            record: Value used by this function.
+
+        Returns:
+            None.
+        """
         if self.log_file is None:
             raise LiveFederationError("live federation has not been started")
         self.log_file.write(json.dumps(record, sort_keys=True, allow_nan=False) + "\n")
 
     def on_vehicle_departure(self, vehicle_id: str, approach: str, now: float) -> None:
+        """Handles vehicle departure event and updates the related state.
+
+        Args:
+            vehicle_id: Value used by this function.
+            approach: Value used by this function.
+            now: Value used by this function.
+
+        Returns:
+            None.
+        """
         if approach not in APPROACHES:
             raise LiveFederationError(f"unknown vehicle approach: {approach!r}")
         if vehicle_id in self.clients:
@@ -200,6 +247,15 @@ class LiveFederation:
         })
 
     def on_vehicle_arrival(self, vehicle_id: str, now: float) -> None:
+        """Handles vehicle arrival event and updates the related state.
+
+        Args:
+            vehicle_id: Value used by this function.
+            now: Value used by this function.
+
+        Returns:
+            None.
+        """
         client = self.clients.get(vehicle_id)
         if client is None or client.client_type != "vehicle":
             raise LiveFederationError(f"vehicle is not registered for live learning: {vehicle_id}")
@@ -217,6 +273,16 @@ class LiveFederation:
         })
 
     def observe(self, client_id: str, now: float, view: dict) -> None:
+        """Handles observe for the values provided.
+
+        Args:
+            client_id: Value used by this function.
+            now: Value used by this function.
+            view: Value used by this function.
+
+        Returns:
+            None.
+        """
         client = self.clients.get(client_id)
         if client is None:
             raise LiveFederationError(f"observation belongs to an unregistered live client: {client_id}")
@@ -255,6 +321,15 @@ class LiveFederation:
         })
 
     def release_matured_labels(self, now: float, truth: dict) -> None:
+        """Handles release matured labels for the values provided.
+
+        Args:
+            now: Value used by this function.
+            truth: Value used by this function.
+
+        Returns:
+            None.
+        """
         due_times = sorted(due for due in self.pending if due <= now + 1e-6)
         for due_t in due_times:
             if abs(due_t - now) > 1e-6:
@@ -302,6 +377,14 @@ class LiveFederation:
                 })
 
     def _eligibility(self, client: _Client) -> tuple[str, str]:
+        """Handles  eligibility for the values provided.
+
+        Args:
+            client: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         if not client.active:
             return "departed_inference_only", "vehicle_has_departed"
         if client.client_type == "rsu" and not self.rsu_self_update:
@@ -315,6 +398,11 @@ class LiveFederation:
         return "trainable", "eligible"
 
     def _eligible_statuses(self) -> tuple[list[_Client], list[dict]]:
+        """Handles  eligible statuses for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         eligible = []
         statuses = []
         for client in sorted(self.clients.values(), key=lambda value: value.client_id):
@@ -336,6 +424,14 @@ class LiveFederation:
         return eligible, statuses
 
     def _select_participants(self, eligible: list[_Client]) -> list[_Client]:
+        """Handles  select participants for the values provided.
+
+        Args:
+            eligible: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         rsus = sorted(
             (client for client in eligible if client.client_type == "rsu"),
             key=lambda client: client.client_id,
@@ -352,6 +448,14 @@ class LiveFederation:
         return sorted(selected, key=lambda client: client.client_id)
 
     def run_due_rounds(self, now: float) -> None:
+        """Runs run due rounds for the values provided.
+
+        Args:
+            now: Value used by this function.
+
+        Returns:
+            None.
+        """
         if self.log_file is None or self.run_dir is None:
             raise LiveFederationError("live federation has not been started")
         while now + 1e-6 >= self.next_round_s:
@@ -360,6 +464,15 @@ class LiveFederation:
             self._run_round(boundary, now)
 
     def _run_round(self, boundary: float, now: float) -> None:
+        """Handles  run round for the values provided.
+
+        Args:
+            boundary: Value used by this function.
+            now: Value used by this function.
+
+        Returns:
+            None.
+        """
         if self.log_file is None or self.run_dir is None:
             raise LiveFederationError("live federation has not been started")
         eligible, statuses = self._eligible_statuses()
@@ -463,6 +576,11 @@ class LiveFederation:
         })
 
     def close(self) -> dict:
+        """Finishes or delivers close for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         if self._closed:
             return self.summary()
         if self.log_file is not None:
@@ -482,6 +600,11 @@ class LiveFederation:
         return self.summary()
 
     def summary(self) -> dict:
+        """Formats or summarizes summary for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         eligible, statuses = self._eligible_statuses()
         return {
             "enabled": self.log_file is not None or self._closed,

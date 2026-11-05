@@ -1,3 +1,5 @@
+"""Test helpers for mkfigs."""
+
 import json, matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt

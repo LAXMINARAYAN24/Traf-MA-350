@@ -1,4 +1,6 @@
-"""One simulation run: SUMO <-> TraCI <-> agents <-> channels <-> RSUs <-> coordinator, with full logging."""
+"""**SUMO/** This file is part of the SUMO related functionality. It runs SUMO and records its traffic, messages, and evaluation output.
+
+One simulation run: SUMO <-> TraCI <-> agents <-> channels <-> RSUs <-> coordinator, with full logging."""
 from __future__ import annotations
 
 import datetime as dt
@@ -35,21 +37,122 @@ class RunResult:
 
 
 class LiveFederationHooks(Protocol):
-    def start(self, run_id: str, run_dir: Path, config: dict, topology_path: Path) -> None: ...
-    def on_vehicle_departure(self, vehicle_id: str, approach: str, now: float) -> None: ...
-    def on_vehicle_arrival(self, vehicle_id: str, now: float) -> None: ...
-    def observe(self, client_id: str, now: float, view: dict) -> None: ...
-    def release_matured_labels(self, now: float, truth: dict) -> None: ...
-    def run_due_rounds(self, now: float) -> None: ...
-    def close(self) -> dict: ...
+    """Describes the callbacks used by live federated learning during SUMO runs."""
+
+    def start(self, run_id: str, run_dir: Path, config: dict, topology_path: Path) -> None:
+        """Starts live learning for a run and gives it the run context.
+
+        Args:
+            run_id: Stable identifier for this simulation run.
+            run_dir: Folder where the run stores its outputs.
+            config: Resolved run configuration.
+            topology_path: File containing the generated road topology.
+
+        Returns:
+            None.
+        """
+        ...
+
+    def on_vehicle_departure(self, vehicle_id: str, approach: str, now: float) -> None:
+        """Notifies live learning that a vehicle has entered the simulation.
+
+        Args:
+            vehicle_id: SUMO vehicle identifier.
+            approach: Incoming road used by the vehicle.
+            now: Current simulation time in seconds.
+
+        Returns:
+            None.
+        """
+        ...
+
+    def on_vehicle_arrival(self, vehicle_id: str, now: float) -> None:
+        """Notifies live learning that a vehicle has completed its route.
+
+        Args:
+            vehicle_id: SUMO vehicle identifier.
+            now: Current simulation time in seconds.
+
+        Returns:
+            None.
+        """
+        ...
+
+    def observe(self, client_id: str, now: float, view: dict) -> None:
+        """Adds one allowed observation to the named client's history.
+
+        Args:
+            client_id: Vehicle or RSU that owns the observation.
+            now: Current simulation time in seconds.
+            view: Coverage-limited values visible to that client.
+
+        Returns:
+            None.
+        """
+        ...
+
+    def release_matured_labels(self, now: float, truth: dict) -> None:
+        """Makes evaluator labels available after their forecast horizon ends.
+
+        Args:
+            now: Current simulation time in seconds.
+            truth: Ground-truth values for labels that have matured.
+
+        Returns:
+            None.
+        """
+        ...
+
+    def run_due_rounds(self, now: float) -> None:
+        """Runs any federated rounds scheduled by the current simulation time.
+
+        Args:
+            now: Current simulation time in seconds.
+
+        Returns:
+            None.
+        """
+        ...
+
+    def close(self) -> None:
+        """Finishes live learning and closes its output files.
+
+        Returns:
+            None.
+        """
+        ...
+
+    def summary(self) -> dict:
+        """Returns a summary of the live-learning results.
+
+        Returns:
+            A dictionary of final counts and run details.
+        """
+        ...
 
 
 def _make_run_id(cfg: Config) -> str:
+    """Handles  make run id for the values provided.
+
+    Args:
+        cfg: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     return cfg.run.run_id or f"p1_n{cfg.run.vehicles}_s{cfg.run.seed}_{stamp}"
 
 
 def _versions(world: Optional[TraciWorld]) -> dict:
+    """Handles  versions for the values provided.
+
+    Args:
+        world: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     try:
         import traci
         tv = getattr(traci, "__version__", "unknown")
@@ -65,6 +168,17 @@ def _versions(world: Optional[TraciWorld]) -> dict:
 
 
 def _gui_color(topo, v, parent, cfg) -> tuple:
+    """Handles  gui color for the values provided.
+
+    Args:
+        topo: Value used by this function.
+        v: Value used by this function.
+        parent: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     g = topo.approaches[parent]
     if v.edge_id == g.in_edge:
         d = g.in_len - v.lane_pos
@@ -75,6 +189,14 @@ def _gui_color(topo, v, parent, cfg) -> tuple:
 
 
 def _parse_tripinfo(p: Path) -> dict:
+    """Handles  parse tripinfo for the values provided.
+
+    Args:
+        p: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     if not p.is_file():
         return {}
     try:
@@ -91,6 +213,17 @@ def _parse_tripinfo(p: Path) -> dict:
 
 def run_simulation(cfg: Config, gui: Optional[bool] = None, quiet: bool = False,
                    live_federation: Optional[LiveFederationHooks] = None) -> RunResult:
+    """Runs run simulation for the values provided.
+
+    Args:
+        cfg: Value used by this function.
+        gui: Value used by this function.
+        quiet: Value used by this function.
+        live_federation: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     cfg.validate()
     gui = cfg.run.gui if gui is None else gui
     run_id = _make_run_id(cfg)
@@ -137,6 +270,21 @@ def run_simulation(cfg: Config, gui: Optional[bool] = None, quiet: bool = False,
     live_summary = None
 
     def trace_msg(now, ev, env_d, frm, to, link, reason=None, exception=False):
+        """Handles trace msg for the values provided.
+
+        Args:
+            now: Value used by this function.
+            ev: Value used by this function.
+            env_d: Value used by this function.
+            frm: Value used by this function.
+            to: Value used by this function.
+            link: Value used by this function.
+            reason: Value used by this function.
+            exception: Value used by this function.
+
+        Returns:
+            None.
+        """
         rec = {"t": now, "ev": ev, "msg": env_d.get("msg_id") if isinstance(env_d, dict) else str(env_d),
                "type": env_d.get("msg_type") if isinstance(env_d, dict) else None, "from": frm, "to": to,
                "link": link}
@@ -145,6 +293,15 @@ def run_simulation(cfg: Config, gui: Optional[bool] = None, quiet: bool = False,
         log.msg(rec, exception or ev not in ("send", "deliver", "accept", "relay"))
 
     def set_disp(mid, val):
+        """Sets or resolves set disp for the values provided.
+
+        Args:
+            mid: Value used by this function.
+            val: Value used by this function.
+
+        Returns:
+            None.
+        """
         if disp.get(mid) not in ACCEPTED:
             disp[mid] = val
 
@@ -375,10 +532,28 @@ def run_simulation(cfg: Config, gui: Optional[bool] = None, quiet: bool = False,
 
 
 def world_time_safe(last_snapshot, cfg, step_i) -> float:
+    """Finds or calculates world time safe for the values provided.
+
+    Args:
+        last_snapshot: Value used by this function.
+        cfg: Value used by this function.
+        step_i: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return step_i * cfg.run.step_s
 
 
 def format_summary(m: dict) -> str:
+    """Formats or summarizes format summary for the values provided.
+
+    Args:
+        m: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     c, co = m["counters"], m["coordinator"]
     L = [f"=== TRAF-MA run {m['run_id']} ===",
          f"status            : {m['status']}  (sim end t={m['end_sim_time_s']} s, wall {m['wall_time_s']} s, "

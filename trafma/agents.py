@@ -1,4 +1,6 @@
-"""P1.4/P1.5 - Agent registry (4 RSUs + N vehicles) and the vehicle -> RSU relay logic."""
+"""**SUMO/** This file is part of the SUMO related functionality. It defines the software agents that report SUMO traffic.
+
+P1.4/P1.5 - Agent registry (4 RSUs + N vehicles) and the vehicle -> RSU relay logic."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -13,11 +15,29 @@ COORDINATOR_ID = "coordinator"
 
 
 def rsu_id(approach: str) -> str:
+    """Finds or calculates rsu id for the values provided.
+
+    Args:
+        approach: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return f"rsu_{approach}"
 
 
 class VehicleAgent:
     def __init__(self, vid: str, origin: str, depart_time: float):
+        """Sets up this object using the values provided.
+
+        Args:
+            vid: Value used by this function.
+            origin: Value used by this function.
+            depart_time: Value used by this function.
+
+        Returns:
+            None.
+        """
         self.vid, self.origin, self.parent = vid, origin, rsu_id(origin)
         self.depart_time = depart_time
         self.arrive_time: Optional[float] = None
@@ -25,6 +45,15 @@ class VehicleAgent:
         self.n_reports = 0
 
     def report(self, view: dict, now: float) -> Envelope:
+        """Formats or summarizes report for the values provided.
+
+        Args:
+            view: Value used by this function.
+            now: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         env = Envelope(make_msg_id(self.vid, self._seq), VEHICLE_REPORT, self.vid, self.vid, self.parent,
                        self._seq, now, [self.vid], EVIDENCE_RELAYED_CHILD, build_payload(VEHICLE_REPORT, view))
         self._seq += 1
@@ -36,6 +65,15 @@ class RsuAgent:
     """Roadside unit for ONE road. Exists for the whole run. Senses its own approach and relays its children."""
 
     def __init__(self, approach: str, cfg: Config):
+        """Sets up this object using the values provided.
+
+        Args:
+            approach: Value used by this function.
+            cfg: Value used by this function.
+
+        Returns:
+            None.
+        """
         self.approach, self.id, self.cfg = approach, rsu_id(approach), cfg
         self._seq = 0
         self._bundle_seq = 0
@@ -47,6 +85,15 @@ class RsuAgent:
                       "not_my_child": 0}
 
     def summarise(self, view: dict, now: float) -> Envelope:
+        """Formats or summarizes summarise for the values provided.
+
+        Args:
+            view: Value used by this function.
+            now: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         env = Envelope(make_msg_id(self.id, self._seq), RSU_SUMMARY, self.id, self.id, COORDINATOR_ID,
                        self._seq, now, [self.id], EVIDENCE_DIRECT, build_payload(RSU_SUMMARY, view))
         self._seq += 1
@@ -82,6 +129,14 @@ class RsuAgent:
         return True, "accepted"
 
     def flush_relay(self, now: float) -> Optional[Envelope]:
+        """Finishes or delivers flush relay for the values provided.
+
+        Args:
+            now: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         if not self._relay_buf:
             return None
         rep, self._relay_buf = self._relay_buf, []
@@ -97,6 +152,14 @@ class AgentRegistry:
     SUMO's departure event to its arrival event (ownership by origin road persists until arrival)."""
 
     def __init__(self, cfg: Config):
+        """Sets up this object using the values provided.
+
+        Args:
+            cfg: Value used by this function.
+
+        Returns:
+            None.
+        """
         self.cfg = cfg
         self.rsus = {a: RsuAgent(a, cfg) for a in APPROACHES}
         self.vehicles: dict = {}          # active
@@ -104,6 +167,16 @@ class AgentRegistry:
         self.events: list = []
 
     def on_depart(self, vid: str, origin: str, now: float) -> VehicleAgent:
+        """Handles depart event and updates the related state.
+
+        Args:
+            vid: Value used by this function.
+            origin: Value used by this function.
+            now: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         if vid in self.vehicles or vid in self.retired:
             raise RuntimeError(f"vehicle {vid} departed twice")
         v = VehicleAgent(vid, origin, now)
@@ -113,6 +186,15 @@ class AgentRegistry:
         return v
 
     def on_arrive(self, vid: str, now: float):
+        """Handles arrive event and updates the related state.
+
+        Args:
+            vid: Value used by this function.
+            now: Value used by this function.
+
+        Returns:
+            None.
+        """
         v = self.vehicles.pop(vid, None)
         if v is None:
             raise RuntimeError(f"vehicle {vid} arrived but was never registered")
@@ -121,5 +203,13 @@ class AgentRegistry:
         self.events.append((now, "arrive", vid))   # RSU child set is kept: late duplicates stay attributable
 
     def parent_of(self, vid: str) -> Optional[str]:
+        """Finds or calculates parent of for the values provided.
+
+        Args:
+            vid: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         v = self.vehicles.get(vid) or self.retired.get(vid)
         return v.parent if v else None

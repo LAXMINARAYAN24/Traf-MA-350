@@ -7,10 +7,28 @@ pytestmark = needs_sumo
 
 
 def L(topo, a):
+    """Handles l for the values provided.
+
+    Args:
+        topo: Value used by this function.
+        a: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return topo.approaches[a].in_len
 
 
 def test_rsu_sees_only_its_own_approach(topo, cfg):
+    """Checks that rsu sees only its own approach.
+
+    Args:
+        topo: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     w = world([veh("a", "N_in", L(topo, "N") - 20), veh("b", "E_in", L(topo, "E") - 20),
                veh("c", "S_in", L(topo, "S") - 20)], topo)
     n = rsu_view(w, topo, "N", cfg)
@@ -19,6 +37,15 @@ def test_rsu_sees_only_its_own_approach(topo, cfg):
 
 
 def test_rsu_zone_boundary(topo, cfg):
+    """Checks that rsu zone boundary.
+
+    Args:
+        topo: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     inside = veh("in", "N_in", L(topo, "N") - 149.0)
     outside = veh("out", "N_in", L(topo, "N") - 151.0)
     v = rsu_view(world([inside, outside], topo), topo, "N", cfg)
@@ -26,6 +53,15 @@ def test_rsu_zone_boundary(topo, cfg):
 
 
 def test_empty_region_is_unavailable_not_zero(topo, cfg):
+    """Checks that empty region is unavailable not zero.
+
+    Args:
+        topo: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     v = rsu_view(world([], topo), topo, "N", cfg)
     assert v["vehicle_count"] == 0 and v["queue_length_m"] == 0.0
     assert v["mean_speed_mps"] is None and v["max_waiting_time_s"] is None
@@ -35,11 +71,29 @@ def test_empty_region_is_unavailable_not_zero(topo, cfg):
 
 
 def test_rsu_counts_outbound_road_of_its_own_road_only(topo, cfg):
+    """Checks that rsu counts outbound road of its own road only.
+
+    Args:
+        topo: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     w = world([veh("x", "N_out", 30.0, 8.0), veh("y", "E_out", 30.0, 8.0), veh("z", "N_out", 250.0, 8.0)], topo)
     assert rsu_view(w, topo, "N", cfg)["outbound_count"] == 1
 
 
 def test_rsu_signal_matches_its_road(topo, cfg):
+    """Checks that rsu signal matches its road.
+
+    Args:
+        topo: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     w = world([], topo, phase_index=0, remaining=10)
     assert rsu_view(w, topo, "N", cfg)["signal_state"] == "G"
     assert rsu_view(w, topo, "E", cfg)["signal_state"] == "r"
@@ -47,6 +101,14 @@ def test_rsu_signal_matches_its_road(topo, cfg):
 
 def test_queue_chain_rules(cfg):
     # halted chain from the stop line, 7.5 m pitch
+    """Checks that queue chain rules.
+
+    Args:
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     items = [(2.0, 0, 5), (9.5, 0, 5), (17.0, 0, 5), (24.5, 0, 5)]
     assert queue_chain(items, cfg) == (29.5, 4)
     # gap > queue_gap breaks the chain
@@ -59,6 +121,15 @@ def test_queue_chain_rules(cfg):
 
 
 def test_vehicle_on_own_approach_sees_only_own_edge_neighbours(topo, cfg):
+    """Checks that vehicle on own approach sees only own edge neighbours.
+
+    Args:
+        topo: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     p = L(topo, "N") - 80
     w = world([veh("me", "N_in", p, 5.0), veh("ahead", "N_in", p + 30, 0.0), veh("behind", "N_in", p - 40, 6.0),
                veh("far", "N_in", p - 150, 6.0), veh("other", "E_in", p, 3.0)], topo)
@@ -70,6 +141,15 @@ def test_vehicle_on_own_approach_sees_only_own_edge_neighbours(topo, cfg):
 
 
 def test_vehicle_cannot_read_the_world(topo, cfg):
+    """Checks that vehicle cannot read the world.
+
+    Args:
+        topo: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     p = L(topo, "N") - 80
     w = world([veh("me", "N_in", p, 5.0)] + [veh(f"o{i}", "E_in", 100 + i * 10, 3.0) for i in range(5)], topo)
     v = vehicle_view(w, topo, "me", "N", cfg)
@@ -78,6 +158,15 @@ def test_vehicle_cannot_read_the_world(topo, cfg):
 
 
 def test_signal_only_readable_within_radius(topo, cfg):
+    """Checks that signal only readable within radius.
+
+    Args:
+        topo: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     near = vehicle_view(world([veh("me", "N_in", L(topo, "N") - 50)], topo), topo, "me", "N", cfg)
     far = vehicle_view(world([veh("me", "N_in", L(topo, "N") - 200)], topo), topo, "me", "N", cfg)
     assert near["signal_state"] == "G" and far["signal_state"] is None and "signal_state" in far["unavailable"]
@@ -85,6 +174,17 @@ def test_signal_only_readable_within_radius(topo, cfg):
 
 @pytest.mark.parametrize("edge,scope", [("S_out", "out_of_coverage"), (":C_3", "in_junction"), ("E_in", "out_of_coverage")])
 def test_out_of_coverage_is_masked(topo, cfg, edge, scope):
+    """Checks that out of coverage is masked.
+
+    Args:
+        topo: Value used by this function.
+        cfg: Value used by this function.
+        edge: Value used by this function.
+        scope: Value used by this function.
+
+    Returns:
+        None.
+    """
     w = world([veh("me", edge, 5.0, 4.0), veh("n", edge, 10.0, 0.0)], topo)
     v = vehicle_view(w, topo, "me", "N", cfg)
     assert v["scope"] == scope
@@ -93,4 +193,13 @@ def test_out_of_coverage_is_masked(topo, cfg, edge, scope):
 
 
 def test_unknown_vehicle_returns_none(topo, cfg):
+    """Checks that unknown vehicle returns none.
+
+    Args:
+        topo: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        None.
+    """
     assert vehicle_view(world([], topo), topo, "ghost", "N", cfg) is None

@@ -1,3 +1,5 @@
+"""Test helpers for test baseline."""
+
 import csv
 
 import pytest
@@ -6,6 +8,11 @@ from trafma.baseline import _Metrics, _class_for, _metrics_from_predictions, loa
 
 
 def test_baseline_metrics_match_hand_computed_errors_and_class_counts():
+    """Checks that baseline metrics match hand computed errors and class counts.
+
+    Returns:
+        None.
+    """
     metrics = _Metrics()
     rows = [
         (0.0, 0.0, 0, 0),
@@ -27,6 +34,11 @@ def test_baseline_metrics_match_hand_computed_errors_and_class_counts():
 
 
 def test_queue_class_mapping_uses_frozen_project_thresholds():
+    """Checks that queue class mapping uses frozen project thresholds.
+
+    Returns:
+        None.
+    """
     thresholds = [0.10, 0.35]
     assert _class_for(14.9, 150.0, thresholds) == 0
     assert _class_for(15.0, 150.0, thresholds) == 1
@@ -35,6 +47,11 @@ def test_queue_class_mapping_uses_frozen_project_thresholds():
 
 
 def test_learning_config_points_to_installed_dependency_workflow():
+    """Checks that learning config points to installed dependency workflow.
+
+    Returns:
+        None.
+    """
     config = load_learning_config("configs/learning.yaml")
     assert config["dataset"] == "data/phase2_v2_dev"
     assert config["baseline"]["method"] == "pooled_signal_aware_ridge"
@@ -42,6 +59,14 @@ def test_learning_config_points_to_installed_dependency_workflow():
 
 
 def test_reported_metrics_are_recomputed_from_saved_prediction_rows(tmp_path):
+    """Checks that reported metrics are recomputed from saved prediction rows.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     path = tmp_path / "predictions.csv"
     fields = [
         "split", "run_id", "scenario", "client_id", "client_type", "approach", "end_t",

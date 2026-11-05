@@ -1,4 +1,6 @@
-"""P1.2 - Build the single four-arm signalised intersection with SUMO's netconvert.
+"""**SUMO/** This file is part of the SUMO related functionality. It builds the traffic network and signal configuration.
+
+P1.2 - Build the single four-arm signalised intersection with SUMO's netconvert.
 
 Layout (arm length L, one lane per direction):
         N
@@ -34,10 +36,26 @@ class NetworkBuildError(RuntimeError):
 
 
 def in_edge(a: str) -> str:
+    """Handles in edge for the values provided.
+
+    Args:
+        a: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return f"{a}_in"
 
 
 def out_edge(a: str) -> str:
+    """Handles out edge for the values provided.
+
+    Args:
+        a: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return f"{a}_out"
 
 
@@ -49,10 +67,24 @@ def movement_dest(origin: str, turn: str) -> str:
 
 
 def route_id(origin: str, dest: str) -> str:
+    """Finds or calculates route id for the values provided.
+
+    Args:
+        origin: Value used by this function.
+        dest: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return f"r_{origin}_{dest}"
 
 
 def movements():
+    """Handles movements for the values provided.
+
+    Returns:
+        None.
+    """
     for o in APPROACHES:
         for t in ("straight", "left", "right"):
             yield o, t, movement_dest(o, t)
@@ -86,11 +118,24 @@ class Topology:
     drive_side: str = "right"             # "left" | "right"; old topology.json files (no key) were right-hand
 
     def to_json(self) -> str:
+        """Handles to json for the values provided.
+
+        Returns:
+            The result produced by this function.
+        """
         d = asdict(self)
         return json.dumps(d, indent=1, sort_keys=True)
 
     @staticmethod
     def from_json(text: str) -> "Topology":
+        """Handles from json for the values provided.
+
+        Args:
+            text: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         d = json.loads(text)
         ap = {k: ApproachGeom(**{**v, "stop_xy": tuple(v["stop_xy"]), "start_xy": tuple(v["start_xy"]),
                                  "dir_xy": tuple(v["dir_xy"]), "rsu_xy": tuple(v["rsu_xy"])})
@@ -100,6 +145,14 @@ class Topology:
 
     @staticmethod
     def load(path) -> "Topology":
+        """Loads or reads load for the values provided.
+
+        Args:
+            path: Value used by this function.
+
+        Returns:
+            The result produced by this function.
+        """
         return Topology.from_json(Path(path).read_text(encoding="utf-8"))
 
     def approach_of_edge(self, edge_id: str):
@@ -124,6 +177,14 @@ class ScenarioFiles:
 
 
 def _binary(name: str) -> str:
+    """Handles  binary for the values provided.
+
+    Args:
+        name: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     import sumolib
     try:
         return sumolib.checkBinary(name)
@@ -132,6 +193,15 @@ def _binary(name: str) -> str:
 
 
 def _run(cmd: list, what: str):
+    """Handles  run for the values provided.
+
+    Args:
+        cmd: Value used by this function.
+        what: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     p = subprocess.run(cmd, capture_output=True, text=True)
     if p.returncode != 0:
         raise NetworkBuildError(f"{what} failed (exit {p.returncode}):\n{p.stderr or p.stdout}")
@@ -139,6 +209,15 @@ def _run(cmd: list, what: str):
 
 
 def _write_sources(cfg: Config, d: Path):
+    """Handles  write sources for the values provided.
+
+    Args:
+        cfg: Value used by this function.
+        d: Value used by this function.
+
+    Returns:
+        None.
+    """
     L = cfg.network.arm_length_m
     pos = {"N": (0, L), "E": (L, 0), "S": (0, -L), "W": (-L, 0)}
     nodes = ['<nodes>', f'  <node id="{TLS_ID}" x="0" y="0" type="traffic_light" tl="{TLS_ID}"/>']
@@ -202,6 +281,14 @@ def _check_drive_side(net, left: bool, arm_length_m: float):
 
 
 def sha256_file(p: Path) -> str:
+    """Handles sha256 file for the values provided.
+
+    Args:
+        p: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 
@@ -307,6 +394,19 @@ def build_network(cfg: Config, out_dir: Path):
 
 
 def write_sumocfg(cfg: Config, root: Path, net: Path, routes: Path, add: Path, gs: Path) -> Path:
+    """Writes or saves write sumocfg for the values provided.
+
+    Args:
+        cfg: Value used by this function.
+        root: Value used by this function.
+        net: Value used by this function.
+        routes: Value used by this function.
+        add: Value used by this function.
+        gs: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     p = root / "scenario.sumocfg"
     q = lambda f: quoteattr(f.name)
     p.write_text(

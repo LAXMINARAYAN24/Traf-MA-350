@@ -1,4 +1,6 @@
-"""Evaluator-only ground truth and labels. Never imported by agent code paths."""
+"""**SUMO/** This file is part of the SUMO related functionality. It reads SUMO world state to create evaluator truth.
+
+Evaluator-only ground truth and labels. Never imported by agent code paths."""
 from __future__ import annotations
 
 from . import APPROACHES
@@ -19,6 +21,17 @@ def congestion_class(queue_m: float, zone_m: float, thresholds) -> int:
 
 
 def approach_truth(world: WorldSnapshot, topo: Topology, approach: str, cfg: Config) -> dict:
+    """Finds or calculates approach truth for the values provided.
+
+    Args:
+        world: Value used by this function.
+        topo: Value used by this function.
+        approach: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     g = topo.approaches[approach]
     zone = min(cfg.agents.rsu_zone_m, g.in_len)
     zi = zone_items(world, topo, approach, zone)
@@ -38,4 +51,14 @@ def approach_truth(world: WorldSnapshot, topo: Topology, approach: str, cfg: Con
 
 
 def world_truth(world: WorldSnapshot, topo: Topology, cfg: Config) -> dict:
+    """Finds or calculates world truth for the values provided.
+
+    Args:
+        world: Value used by this function.
+        topo: Value used by this function.
+        cfg: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     return {a: approach_truth(world, topo, a, cfg) for a in APPROACHES}

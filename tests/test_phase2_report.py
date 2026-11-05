@@ -1,3 +1,5 @@
+"""Test helpers for test phase2 report."""
+
 import csv
 
 import pytest
@@ -13,6 +15,14 @@ from trafma.local_evaluation import _distribution, _select_representative_client
 
 
 def test_matched_baseline_uses_only_requested_rows_and_reports_partial_persistence(tmp_path):
+    """Checks that matched baseline uses only requested rows and reports partial persistence.
+
+    Args:
+        tmp_path: Value used by this function.
+
+    Returns:
+        None.
+    """
     path = tmp_path / "predictions.csv"
     fields = [
         "split", "run_id", "client_id", "end_t", "true_queue_m", "true_class",
@@ -56,6 +66,11 @@ def test_matched_baseline_uses_only_requested_rows_and_reports_partial_persisten
 
 
 def test_report_labels_identify_hierarchical_and_synthetic_iid_experiments():
+    """Checks that report labels identify hierarchical and synthetic iid experiments.
+
+    Returns:
+        None.
+    """
     assert _experiment_label({
         "evaluation_mode": "representative_stratified_local_only",
     }) == "Independent local-only GRU (representative stratified)"
@@ -77,6 +92,11 @@ def test_report_labels_identify_hierarchical_and_synthetic_iid_experiments():
 
 
 def test_report_includes_validated_run_bootstrap_statistics():
+    """Checks that report includes validated run bootstrap statistics.
+
+    Returns:
+        None.
+    """
     summary = {
         "dataset_id": "phase2_v2",
         "test_run_ids": ["run_a"],
@@ -112,6 +132,11 @@ def test_report_includes_validated_run_bootstrap_statistics():
 
 
 def test_report_rejects_statistics_from_different_test_runs():
+    """Checks that report rejects statistics from different test runs.
+
+    Returns:
+        None.
+    """
     summary = {
         "dataset_id": "phase2_v2",
         "test_run_ids": ["other_run"],
@@ -127,6 +152,11 @@ def test_report_rejects_statistics_from_different_test_runs():
 
 
 def test_local_evaluation_distribution_reports_median_iqr_and_worst_decile():
+    """Checks that local evaluation distribution reports median iqr and worst decile.
+
+    Returns:
+        None.
+    """
     rows = [
         {"status": "completed", "mae_m": 1.0},
         {"status": "completed", "mae_m": 2.0},
@@ -143,6 +173,11 @@ def test_local_evaluation_distribution_reports_median_iqr_and_worst_decile():
 
 
 def test_representative_local_selection_is_deterministic_and_covers_dimensions():
+    """Checks that representative local selection is deterministic and covers dimensions.
+
+    Returns:
+        None.
+    """
     clients = []
     for client_type in ("rsu", "vehicle"):
         for approach in ("N", "E", "S", "W"):
@@ -170,6 +205,11 @@ def test_representative_local_selection_is_deterministic_and_covers_dimensions()
 
 
 def test_client_distribution_report_compares_matched_natural_and_iid_partitions():
+    """Checks that client distribution report compares matched natural and iid partitions.
+
+    Returns:
+        None.
+    """
     dataset_manifest = {
         "clients": {
             "train_a": {

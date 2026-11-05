@@ -10,6 +10,15 @@ from .netgen import Topology
 
 
 def make_report(run_dir, snapshot_t=None) -> list:
+    """Builds or creates make report for the values provided.
+
+    Args:
+        run_dir: Value used by this function.
+        snapshot_t: Value used by this function.
+
+    Returns:
+        The result produced by this function.
+    """
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
