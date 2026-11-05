@@ -110,7 +110,24 @@ python -m trafma baseline --config configs/learning_compact_1500.yaml
 
 These are single-seed results on 300 test windows: descriptive, not a final benchmark.
 
-## 6. Training: epochs, CPU and GPU
+## 6. Latest 350-client compact comparison (2026-11-05)
+
+The latest compact comparison uses **350 vehicle clients with 20 windows each** (7,000 vehicle windows total), plus a four-RSU self-update ablation. The phrase “7,000 examples per client” would be inaccurate: 7,000 is the aggregate vehicle-window budget. In the RSU self-update-on run, each of the four RSUs contributes 1,750 sensor windows, adding 7,000 RSU windows.
+
+All four model runs use the same held-out cohort of 14,000 windows (7,000 vehicle and 7,000 RSU) for validation and test. The central run trains on 7,000 windows of each type. FL configurations use 100 rounds and five local epochs. Exact configs, run manifests, predictions and reports are saved under `runs/phase2_compact_350_*`; the final RSU self-update-on run is packaged under [artifacts/phase2_compact_350_hfl_rsu_on_7000each](artifacts/phase2_compact_350_hfl_rsu_on_7000each/).
+
+| Method | Train windows | Test macro-F1 | Test balanced accuracy | Test queue MAE (m) | Test queue RMSE (m) |
+|---|---:|---:|---:|---:|---:|
+| Central GRU | 14,000 | 0.8357 | 0.8292 | 14.905 | 24.578 |
+| Flat FedAvg, vehicle only | 7,000 | 0.2669 | 0.2991 | 57.391 | 64.154 |
+| Hierarchical FedAvg, RSU self-update off | 7,000 | 0.2524 | 0.2843 | 57.782 | 64.718 |
+| Hierarchical FedAvg, RSU self-update on | 14,000 | 0.7078 | 0.6925 | 27.352 | 42.185 |
+
+RSU self-updates strongly affect the result: in the self-update-on run, test macro-F1 / queue MAE are 0.8880 / 6.995 m for RSU rows and 0.5282 / 47.709 m for vehicle rows. The aggregate score therefore hides a substantial gap between sensor types. Flat and hierarchical FedAvg with RSU self-updates off are nearly tied, consistent with the same updates being averaged once; hierarchy alone is not an accuracy gain here.
+
+These are **one-seed descriptive results**, with overlapping one-second windows from four held-out SUMO runs; they are not independent-window confidence estimates or a multi-seed benchmark. The RSU-on comparison also doubles the FL training-window budget relative to the vehicle-only FL runs, so it does not isolate the effect of hierarchy or RSU participation from added training data. See the [latest-run-only matched report](runs/phase2_compact_350_7000_report_latest_only/report.md) and [status evidence](docs/STATUS.md) for per-type breakdowns, plots, manifests and caveats.
+
+## 7. Training: epochs, CPU and GPU
 
 ```bash
 python -m trafma train --method central --config configs/learning_compact_1500.yaml --device auto
@@ -124,7 +141,7 @@ python -m trafma train --method central --config configs/learning_compact_1500.y
 
 Details: [docs/TRAINING_GUIDE.md](docs/TRAINING_GUIDE.md).
 
-## 7. Command reference
+## 8. Command reference
 
 ```bash
 python -m trafma simulate --config configs/phase1.yaml --vehicles 20 --seed 42 [--gui] [--duration 180 --online-federation]
@@ -145,7 +162,7 @@ python -m trafma phase2-local-eval --help
 
 Any config value can be overridden, for example `--set agents.rsu_zone_m=120 --set comms.v2i.loss_prob=0.1`. In `--gui`, vehicles are green inside the RSU zone, red when halted, yellow when approaching and grey in the junction.
 
-## 8. Run artefacts
+## 9. Run artefacts
 
 Each simulation run folder holds:
 
@@ -161,7 +178,7 @@ Each simulation run folder holds:
 
 A finished left-hand example is in `examples/demo_n20_s42/`.
 
-## 9. Defaults and limits
+## 10. Defaults and limits
 
 - 300 m arms, one lane per direction, 150 m RSU zone, 1 s step, signal 25 s green, 3 s yellow, 2 s all-red (120 s cycle).
 - Congestion rule: queue / zone below 0.10 is free, below 0.35 moderate, otherwise heavy. History 10 steps, horizon 30 s.
@@ -169,7 +186,7 @@ A finished left-hand example is in `examples/demo_n20_s42/`.
 - The `heavy` and `asymmetric` scenarios are over-saturated on purpose: vehicles still queued at 900 s are reported as unfinished.
 - GUI mode was verified under a virtual display only.
 
-## 10. Documentation map
+## 11. Documentation map
 
 | Document | Purpose |
 |---|---|
